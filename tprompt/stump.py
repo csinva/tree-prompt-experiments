@@ -47,6 +47,7 @@ class Stump(ABC):
         checkpoint_prompting: str
             the model used for finding the prompt
         """
+        print("[0] Stump::init()")
         self.args = args
         assert split_strategy in ['iprompt', 'cart', 'linear', 'manual']
         self.split_strategy = split_strategy
@@ -55,7 +56,6 @@ class Stump(ABC):
         self.max_features = max_features
         self.checkpoint = checkpoint
         self.checkpoint_prompting = checkpoint_prompting
-        self.model = model
         if tokenizer is None:
             self.tokenizer = AutoTokenizer.from_pretrained(checkpoint)
         else:
@@ -64,6 +64,7 @@ class Stump(ABC):
         # tree stuff
         self.child_left = None
         self.child_right = None
+        print("[1] Stump::init()")
 
     def __getstate__(self):
         """Get the stump but prevent certain attributes from being pickled.
@@ -88,10 +89,10 @@ class Stump(ABC):
     def predict(self, X_text: List[str]) -> np.ndarray[int]:
         return
 
-    def _set_value_acc_samples(self, X_text, y):
+    def _set_value_acc_samples(self, model, X_text, y):
         """Set value and accuracy of stump.
         """
-        idxs_right = self.predict(X_text).astype(bool)
+        idxs_right = self.predict(model, X_text).astype(bool)
         n_right = idxs_right.sum()
         if n_right == 0 or n_right == y.size:
             self.failed_to_split = True
@@ -109,9 +110,10 @@ class PromptStump(Stump):
     def __init__(self, *args, **kwargs):
         super(PromptStump, self).__init__(*args, **kwargs)
         if self.verbose:
-            logging.info(f'Loading model {self.checkpoint}')
+            logging.info(f'Loading PromptStump with checkpoint {self.checkpoint}')
 
-    def fit(self, X_text: List[str], y, feature_names=None, X=None):
+    def fit(self, model, X_text: List[str], y, feature_names=None, X=None):
+        print("PromptStump fit()")
         # check input and set some attributes
         assert len(np.unique(y)) > 1, 'y should have more than 1 unique value'
         X, y, _ = imodels.util.arguments.check_fit_arguments(
@@ -129,11 +131,10 @@ class PromptStump(Stump):
         if self.split_strategy == 'manual':
             self.prompt = self.args.prompt
         else:
-            self.model = self.model.to('cpu')
             print(
                 f'calling explain_dataset_iprompt with batch size {self.args.batch_size}')
             prompts, metadata = imodelsx.explain_dataset_iprompt(
-                lm=self.model,
+                lm=model,
                 input_strings=input_strings,
                 output_strings=output_strings,
                 checkpoint=self.checkpoint,  # which language model to use
@@ -150,15 +151,15 @@ class PromptStump(Stump):
                 pop_topk_strategy='different_start_token',
                 pop_criterion='loss',
                 max_n_datapoints=len(input_strings),
+                max_length=64, # max length of datapoints (left-truncated before prompt)
                 # on an a6000 gpu with gpt2-xl in fp16 and batch size 32,
                 # 100 steps takes around 30 minutes.
-                max_n_steps=200, # limit search by a fixed number of steps
+                max_n_steps=2, # limit search by a fixed number of steps
             )
             # Consider just the top-32 prompts for splitting the tree.
             prompts = prompts[:32]
             
             torch.cuda.empty_cache()
-            self.model = self.model.to('cuda')
             print('((sent model to cuda))')
 
             # save stuff
@@ -168,15 +169,15 @@ class PromptStump(Stump):
             self.meta = metadata
 
         # set value (calls self.predict)
-        self._set_value_acc_samples(X_text, y)
+        self._set_value_acc_samples(model.cuda(), X_text, y)
 
         return self
 
-    def predict(self, X_text: List[str]) -> np.ndarray[int]:
-        preds_proba = self.predict_proba(X_text)
+    def predict(self, model, X_text: List[str]) -> np.ndarray[int]:
+        preds_proba = self.predict_proba(model, X_text)
         return np.argmax(preds_proba, axis=1)
 
-    def predict_proba(self, X_text: List[str]) -> np.ndarray[float]:
+    def predict_proba(self, model, X_text: List[str]) -> np.ndarray[float]:
         target_strs = list(self._get_verbalizer().values())
 
         # only predict based on first token of output string
@@ -184,14 +185,16 @@ class PromptStump(Stump):
         if self.args.prompt_source == 'data_demonstrations':
             template = self.args.template_data_demonstrations
             preds = self._get_logit_for_target_tokens_batched(
-                [self.prompt + template % (x, '') for x in X_text],
-                target_token_ids,
+                model=model,
+                prompts=[self.prompt + template % (x, '') for x in X_text],
+                target_token_ids=target_token_ids,
                 batch_size=self.args.batch_size
             )
         else:
             preds = self._get_logit_for_target_tokens_batched(
-                [x + self.prompt for x in X_text],
-                target_token_ids,
+                model=model,
+                prompts=[x + self.prompt for x in X_text],
+                target_token_ids=target_token_ids,
                 batch_size=self.args.batch_size
             )
         # preds = np.zeros((len(X_text), len(target_token_ids)))
@@ -205,6 +208,7 @@ class PromptStump(Stump):
         return softmax(preds, axis=1)
 
     def _get_logit_for_target_tokens_batched(self,
+                                             model,
                                              prompts: List[str],
                                              target_token_ids: List[int],
                                              batch_size: int = 64) -> np.ndarray[float]:
@@ -216,7 +220,7 @@ class PromptStump(Stump):
         batch_num = 0
 
         pbar = tqdm.tqdm(
-            total=len(prompts), leave=False, desc='getting dataset predictions for top prompt', colour="red"
+            total=len(prompts), leave=False, desc=f'[{model.device}] getting dataset predictions', colour="red"
         )
         while True:
             batch_start = batch_num * batch_size
@@ -239,27 +243,17 @@ class PromptStump(Stump):
                     max_length=128,
                     return_attention_mask=True
                 )
-                .to(self.model.device)
+                .to(model.device)
             )
 
             # shape is (batch_size, seq_len, vocab_size)
             with torch.no_grad():
-                logits = self.model(**inputs)['logits']
+                logits = model(**inputs)['logits']
             token_output_positions = inputs['attention_mask'].sum(axis=1)
             for i in range(len(prompts_batch)):
                 token_output_position = token_output_positions[i].item() - 1
                 logit_targets_list.append([logits[i, token_output_position, token_output_id].item(
                 ) for token_output_id in target_token_ids])
-
-    # def _get_logit_for_target_tokens(self, prompt: str, target_token_ids: List[int]) -> np.ndarray[float]:
-    #     """Get logits for each target token
-    #     This can fail when token_output_ids represents multiple tokens
-    #     So things get mapped to the same id representing "unknown"
-    #     """
-    #     inputs = self.tokenizer(prompt, return_tensors="pt").to(self.model.device)
-    #     logits = self.model(**inputs)['logits'].detach()  # shape is (batch_size, seq_len, vocab_size)
-    #     logit_targets = [logits[0, -1, token_output_id].item() for token_output_id in target_token_ids]
-    #     return np.array(logit_targets)
 
     def _get_first_token_id(self, prompt: str) -> str:
         """Get first token id in prompt
@@ -281,7 +275,7 @@ class PromptStump(Stump):
 
 class KeywordStump(Stump):
 
-    def fit(self, X_text: List[str], y, feature_names=None, X=None):
+    def fit(self, model, X_text: List[str], y, feature_names=None, X=None):
         # check input and set some attributes
         assert len(np.unique(y)) > 1, 'y should have more than 1 unique value'
         assert len(np.unique(y)) <= 2, 'only binary classification is supported'
@@ -305,7 +299,7 @@ class KeywordStump(Stump):
 
         # checks
         if self.assert_checks:
-            preds_text = self.predict(X_text)
+            preds_text = self.predict(model, X_text)
             preds_tab = self._predict_tabular(X)
             assert np.all(
                 preds_text == preds_tab), 'predicting with text and tabular should give same results'
@@ -316,7 +310,7 @@ class KeywordStump(Stump):
 
         return self
 
-    def predict(self, X_text: List[str]) -> np.ndarray[int]:
+    def predict(self, model, X_text: List[str]) -> np.ndarray[int]:
         """Returns prediction 1 for positive and 0 for negative.
         """
         keywords = self.stump_keywords

@@ -24,7 +24,7 @@ import cache_save_utils
 path_to_repo = dirname(dirname(os.path.abspath(__file__)))
 
 
-def evaluate_model(model, X_train, X_cv, X_test,
+def evaluate_model(tree, X_train, X_cv, X_test,
                    X_train_text, X_cv_text, X_test_text,
                    y_train, y_cv, y_test, r):
     """Evaluate model performance on each split
@@ -48,20 +48,20 @@ def evaluate_model(model, X_train, X_cv, X_test,
                                              (X_cv_text, X_cv, y_cv),
                                              (X_test_text, X_test, y_test)]):
         # metrics discrete
-        predict_parameters = inspect.signature(model.predict).parameters.keys()
+        predict_parameters = inspect.signature(tree.predict).parameters.keys()
         if 'X_text' in predict_parameters:
-            y_pred_ = model.predict(X_text=X_text_).astype(int)
+            y_pred_ = tree.predict(model=tree.model, X_text=X_text_).astype(int)
         else:
-            y_pred_ = model.predict(X_)
+            y_pred_ = tree.predict(X_)
         for metric_name, metric_fn in metrics.items():
             r[f'{metric_name}_{split_name}'] = metric_fn(y_, y_pred_)
 
         # metrics proba
-        if hasattr(model, 'predict_proba'):
+        if hasattr(tree, 'predict_proba'):
             if 'X_text' in predict_parameters:
-                y_pred_proba_ = model.predict_proba(X_text=X_text_)
+                y_pred_proba_ = tree.predict_proba(model=tree.model, X_text=X_text_)
             else:
-                y_pred_proba_ = model.predict_proba(X_)
+                y_pred_proba_ = tree.predict_proba(X_)
             if not multiclass:
                 y_pred_proba_ = y_pred_proba_[:, 1]
                 for metric_name, metric_fn in metrics_proba.items():

@@ -7,7 +7,7 @@ import tprompt.data
 import logging
 import warnings
 from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoTokenizer
 import warnings
 from tprompt.utils import load_lm
 
@@ -74,14 +74,14 @@ class Tree:
             self.feature_names = np.array(self.feature_names).flatten()
 
         # set up arguments
-        model = load_lm(checkpoint=self.checkpoint, tokenizer=self.tokenizer)
+        self.model = load_lm(checkpoint=self.checkpoint, tokenizer=self.tokenizer)
+        model = self.model
         stump_kwargs = dict(
             args=self.args,
             tokenizer=self.tokenizer,
             split_strategy=self.split_strategy,
             assert_checks=self.assert_checks,
             verbose=self.verbose,
-            model=model,
             checkpoint=self.checkpoint,
             checkpoint_prompting=self.checkpoint_prompting,
         )
@@ -93,7 +93,11 @@ class Tree:
         # fit root stump
         # if the initial feature puts no points into a leaf,
         # the value will end up as NaN
-        stump = stump_class(**stump_kwargs).fit(
+        logging.info(f"creating stump (depth=%d).", 0)
+        stump = stump_class(**stump_kwargs)
+        logging.info(f"fitting stump (depth=%d).", 0)
+        stump = stump.fit(
+            model=model,
             X_text=X_text,
             y=y,
             feature_names=self.feature_names,
@@ -117,7 +121,7 @@ class Tree:
                 if self.verbose:
                     logging.debug(
                         f'Splitting on {depth=} stump_num={i} {stump.idxs.sum()=}')
-                idxs_pred = stump.predict(X_text=X_text) > 0.5
+                idxs_pred = stump.predict(model=model, X_text=X_text) > 0.5
                 for idxs_p, attr in zip([~idxs_pred, idxs_pred], ['child_left', 'child_right']):
                     # for idxs_p, attr in zip([idxs_pred], ['child_right']):
                     idxs_child = stump.idxs & idxs_p
@@ -129,7 +133,12 @@ class Tree:
                             and len(np.unique(y[idxs_child])) > 1:
 
                         # fit a potential child stump
-                        stump_child = stump_class(**stump_kwargs).fit(
+                        logging.info(f"initializing stump (depth=%d).", depth)
+                        stump_child = stump_class(**stump_kwargs)
+                        
+                        logging.info(f"fitting stump (depth=%d).", depth)
+                        stump_child = stump_child.fit(
+                            model=model,
                             X_text=X_text[idxs_child],
                             y=y[idxs_child],
                             feature_names=self.feature_names,
@@ -138,8 +147,10 @@ class Tree:
 
                         # make sure the stump actually found a non-trivial split
                         if not stump_child.failed_to_split:
+                            logging.info(f"fit stump, testing acc (depth=%d).", depth)
                             stump_child.idxs = idxs_child
                             acc_tree_baseline = np.mean(self.predict(
+                                model=model,
                                 X_text=X_text[idxs_child]) == y[idxs_child])
                             if attr == 'child_left':
                                 stump.child_left = stump_child
@@ -155,6 +166,7 @@ class Tree:
                             if self.assert_checks:
                                 # check acc for the points in this stump
                                 acc_tree = np.mean(self.predict(
+                                    model=model,
                                     X_text=X_text[idxs_child]) == y[idxs_child])
                                 assert acc_tree >= acc_tree_baseline, f'stump acc {acc_tree:0.3f} should be > after adding child {acc_tree_baseline:0.3f}'
 
@@ -162,7 +174,9 @@ class Tree:
                                 acc_total_baseline = max(
                                     y.mean(), 1 - y.mean())
                                 acc_total = np.mean(
-                                    self.predict(X_text=X_text) == y)
+                                    self.predict(
+                                        model=model,
+                                        X_text=X_text) == y)
                                 assert acc_total >= acc_total_baseline, f'total acc {acc_total:0.3f} should be > after adding child {acc_total_baseline:0.3f}'
 
                                 # check that stumptrain acc improved over this set
@@ -180,7 +194,7 @@ class Tree:
 
         return self
 
-    def predict_proba(self, X_text: List[str] = None):
+    def predict_proba(self, model, X_text: List[str] = None):
         preds = []
         for x_t in X_text:
 
@@ -188,7 +202,9 @@ class Tree:
             stump = self.root_
             while stump:
                 # 0 or 1 class prediction here
-                pred = stump.predict(X_text=[x_t])[0]
+                pred = stump.predict(
+                    model=model,
+                    X_text=[x_t])[0]
                 value = stump.value
 
                 if pred > 0.5:
@@ -204,8 +220,8 @@ class Tree:
         probs = np.vstack((1 - preds, preds)).transpose()  # probs (n, 2)
         return probs
 
-    def predict(self, X_text: List[str] = None) -> np.ndarray[int]:
-        preds_bool = self.predict_proba(X_text=X_text)[:, 1]
+    def predict(self, model, X_text: List[str] = None) -> np.ndarray[int]:
+        preds_bool = self.predict_proba(model=model, X_text=X_text)[:, 1]
         return (preds_bool > 0.5).astype(int)
 
     def __str__(self):
