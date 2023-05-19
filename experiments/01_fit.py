@@ -53,36 +53,49 @@ def evaluate_model(model, X_train, X_cv, X_test,
     """
     metrics = {
         'accuracy': accuracy_score,
-        'precision': partial(precision_score, zero_division=0),
-        'recall': partial(recall_score, zero_division=0),
-        'balanced_accuracy': balanced_accuracy_score,
+        #'precision': partial(precision_score, zero_division=0),
+        #'recall': partial(recall_score, zero_division=0),
+        #'balanced_accuracy': balanced_accuracy_score,
     }
     metrics_proba = {
         'roc_auc': roc_auc_score,
         'brier_score_loss': brier_score_loss,
     }
-    for split_name, (X_text_, X_, y_) in zip(['train', 'cv', 'test'],
-                                             [(X_train_text, X_train, y_train),
-                                             (X_cv_text, X_cv, y_cv),
-                                             (X_test_text, X_test, y_test)]):
+    num = 1000
+    num2 = 4096
+    #num2 = 64
+    X_train_text = X_train_text[num:]
+    #X_train = X_train[num:]
+    y_train = y_train[num:]
+    for split_name, (X_text_, y_) in zip(['train', 'cv', 'test'],
+                                             [(X_train_text, y_train),
+                                             (X_cv_text, y_cv),
+                                             (X_test_text, y_test)]):
         # metrics discrete                                             
+        #import pdb; pdb.set_trace()
+        if split_name == 'cv':
+            continue
         predict_parameters = inspect.signature(model.predict).parameters.keys()
         if 'X_text' in predict_parameters:
+            X_text_ = X_text_[:num2]
+            y_ = y_[:num2]
             y_pred_ = model.predict(X_text=X_text_).astype(int)
         else:
+            assert False
             y_pred_ = model.predict(X_)
         for metric_name, metric_fn in metrics.items():
             r[f'{metric_name}_{split_name}'] = metric_fn(y_, y_pred_)
 
-        # metrics proba
-        if hasattr(model, 'predict_proba'):
-            if 'X_text' in predict_parameters:
-                y_pred_proba_ = model.predict_proba(X_text=X_text_)[:, 1]
-            else:
-                y_pred_proba_ = model.predict_proba(X_)[:, 1]
-        for metric_name, metric_fn in metrics_proba.items():
-            r[f'{metric_name}_{split_name}'] = metric_fn(y_, y_pred_proba_)
-
+        #### metrics proba
+        ###if hasattr(model, 'predict_proba'):
+        ###    if 'X_text' in predict_parameters:
+        ###        y_pred_proba_ = model.predict_proba(X_text=X_text_)[:, 1]
+        ###    else:
+        ###        y_pred_proba_ = model.predict_proba(X_)[:, 1]
+        ###for metric_name, metric_fn in metrics_proba.items():
+        ###    r[f'{metric_name}_{split_name}'] = metric_fn(y_, y_pred_proba_)
+    #import pdb; pdb.set_trace()
+    print (r)
     return r
 
 # initialize args
@@ -96,6 +109,14 @@ def add_main_args(parser):
                         default='rotten_tomatoes', help='name of dataset')
     parser.add_argument('--subsample_frac', type=float,
                         default=1, help='fraction of samples to use')
+    parser.add_argument('--rest_negative', type=int,
+                        default=0, help='name of dataset')
+    parser.add_argument('--num_repeat', type=int,
+                        default=1, help='name of dataset')
+    parser.add_argument('--num_prompts', type=int,
+                        default=25, help='name of dataset')
+    parser.add_argument('--num_prompts_max', type=int,
+                        default=25, help='name of dataset')
 
     # training misc args
     parser.add_argument('--seed', type=int, default=1,
@@ -158,14 +179,19 @@ if __name__ == '__main__':
     # load text data
     X_train_text, X_test_text, y_train, y_test = imodelsx.data.load_huggingface_dataset(
         dataset_name=args.dataset_name, subsample_frac=args.subsample_frac,
-        return_lists=True, binary_classification=True,
+        return_lists=True, binary_classification=False, #args.dataset_name!='tweet_eval_emoji',
     )
+    #import pdb; pdb.set_trace()
     # get converted tabular data too just in case
-    X_train, X_test, feature_names = \
-        tprompt.data.convert_text_data_to_counts_array(
-            X_train_text, X_test_text, ngrams=2)
-    X_train, X_cv, X_train_text, X_cv_text, y_train, y_cv = train_test_split(
-        X_train, X_train_text, y_train, test_size=0.33, random_state=args.seed)
+    #X_train, X_test, feature_names = \
+    #    tprompt.data.convert_text_data_to_counts_array(
+    #        X_train_text, X_test_text, ngrams=1)
+    X_train, X_test, feature_names = None, None, None
+    #X_train, X_cv, X_train_text, X_cv_text, y_train, y_cv = train_test_split(
+    #    X_train, X_train_text, y_train, test_size=0.33, random_state=args.seed)
+    X_cv = None
+    X_train_text, X_cv_text, y_train, y_cv = train_test_split(
+        X_train_text, y_train, test_size=0.33, random_state=args.seed)
     args.verbalizer = get_verbalizer(args)
 
     # load model
@@ -188,6 +214,7 @@ if __name__ == '__main__':
     # fit
     r, model = fit_model(model, X_train, X_train_text, y_train, feature_names, r)
     
+    #import pdb; pdb.set_trace()
     # evaluate
     r = evaluate_model(
         model,

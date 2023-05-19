@@ -6,8 +6,11 @@ from tprompt.stump import KeywordStump, PromptStump, Stump
 import tprompt.data
 import logging
 import warnings
+import copy
+import random
 from transformers import AutoModelForCausalLM
-
+global model
+model = None
 class Tree:
     def __init__(
         self,
@@ -56,20 +59,23 @@ class Tree:
 
     def fit(self, X_text: List[str]=None, y=None, feature_names=None, X=None):
         if X is None and X_text:
-            warnings.warn("X is not passed, defaulting to generating unigrams from X_text")
-            X, _, feature_names = tprompt.data.convert_text_data_to_counts_array(X_text, [], ngrams=1)
+            pass
+            #warnings.warn("X is not passed, defaulting to generating unigrams from X_text")
+            #X, _, feature_names = tprompt.data.convert_text_data_to_counts_array(X_text, [], ngrams=1)
 
         # check and set some attributes
-        X, y, _ = imodels.util.arguments.check_fit_arguments(
-            self, X, y, feature_names)
+        #X, y, _ = imodels.util.arguments.check_fit_arguments(
+        #    self, X, y, feature_names)
         if isinstance(X_text, list):
             X_text = np.array(X_text).flatten()
         self.feature_names = feature_names
         if isinstance(self.feature_names, list):
             self.feature_names = np.array(self.feature_names).flatten()
 
+        global model
+        if model is None:
+            model = AutoModelForCausalLM.from_pretrained(self.checkpoint).cuda()
         # set up arguments
-        model = AutoModelForCausalLM.from_pretrained(self.checkpoint).to(self.device)
         stump_kwargs = dict(
             args=self.args,
             tokenizer=self.tokenizer,
@@ -89,26 +95,125 @@ class Tree:
         # fit root stump
         # if the initial feature puts no points into a leaf,
         # the value will end up as NaN
+        X_text_all = X_text
+        X_text_all = []
+        for text in X_text:
+            X_text_all.append(f'{text}\nOutput:')
+        #import pdb; pdb.set_trace()
+        y_all = y
+        X_all = X
+
+        num = 1000
+        X_text_train = X_text_all[:num]
+        X_text = X_text_all[num:]
+        y_train = y_all[:num]
+        y = y_all[num:]
+        #X_train = X_all[:num]
+        #X = X_all[num:]
+
+        #num_positive = 10
+        #num_negative = num_positive
+        #stump_kwargs['verbalizer'] = 
+        stump = stump_class(**stump_kwargs)
+        verbalizer_dict = stump._get_verbalizer()
+        input_strings_train = X_text_train
+        #output_strings_train = [verbalizer_dict[int(yi)] for yi in y_train]
+        #output_strings_train = [verbalizer_dict[int(yi)] for yi in y_train]
+        prompts = []
+        unique_ys = sorted(list(set(y_train)), key=lambda x: -x) # 1, 0 since positive usually comes first
+        examples_by_y = {}
+        for y_i in unique_ys:
+            examples_by_y[y_i] = sorted(list(filter(lambda ex: ex[1]==y_i, zip(X_text_train, y_train))))
+        prompts = []
+        num_prompts = 9
+        num_prompts = 25
+        num_prompts = self.args.num_prompts
+        num_prompts_max = self.args.num_prompts_max
+        num_repeat = 1
+        num_repeat = self.args.num_repeat
+        #num_prompts = 100
+        print (f'Num prompts max {num_prompts_max}')
+        print (f'Num prompts {num_prompts}')
+        #import pdb; pdb.set_trace()
+        print (f'Repeating {num_repeat}')
+        if self.args.rest_negative == 1:
+            print ('REST NEG')
+        while len(prompts) < num_prompts_max:
+            #prompt = ''
+            prompt = []
+            unique_ys_copy = copy.deepcopy(unique_ys)
+            random.shuffle(unique_ys_copy)
+
+            for _ in range(num_repeat):
+                for iii, y_i in enumerate(unique_ys_copy[:2]):
+                    if iii == 0 and self.args.rest_negative == 1:
+                        y_i = random.choice(unique_ys_copy[:iii+1] + unique_ys_copy[iii+2:])
+                    example = random.choice(examples_by_y[y_i])
+                    text, _ = example
+                    #prompt += f'Input: {text}{verbalizer_dict[iii]}\n'
+                    prompt.append(f'Input: {text}{verbalizer_dict[iii]}\n')
+            random.shuffle(prompt)
+            #prompt = 'Find the pattern between the input and the output.\n' + ''.join(prompt)
+            prompt = ''.join(prompt)
+            prompt += 'Input: '
+            if prompt not in prompts:
+                prompts.append(prompt)
+
+        ###positive_examples = []
+        ###negative_examples = []
+        #import pdb; pdb.set_trace()
+        ###for input_string, output_string in zip(input_strings_train, output_strings_train):
+        ###    if output_string == verbalizer_dict[1]:
+        ###        if len(positive_examples) < num_positive:
+        ###            positive_examples.append((input_string, output_string))
+        ###    elif output_string == verbalizer_dict[0]:
+        ###        if len(negative_examples) < num_negative:
+        ###            negative_examples.append((input_string, output_string))
+        ###    else:
+        ###        assert False
+        ####import pdb; pdb.set_trace()
+        ###prompts = []
+        ###for positive_example in positive_examples:
+        ###    input_string_pos, output_string_pos = positive_example
+        ###    for negative_example in negative_examples:
+        ###        input_string_neg, output_string_neg = negative_example
+        ###        prompt = f'Input: {input_string_pos}{output_string_pos}\nInput: {input_string_neg}{output_string_neg}\nInput: '
+        ###        prompts.append(prompt)
+        ####import pdb; pdb.set_trace()
+        num = 4096
+        #num = 64
+        #num = 256
+        #num = 1024
+        X_text = X_text[:num]
+        y = y[:num]
+        #X = X[:num]
+
+
         stump = stump_class(**stump_kwargs).fit(
             X_text=X_text,
             y=y,
             feature_names=self.feature_names,
-            X=X
+            X=X,
+            prompts=prompts
         )
-        stump.idxs = np.ones(X.shape[0], dtype=bool)
+        #stump.idxs = np.ones(X.shape[0], dtype=bool)
+        stump.idxs = np.ones(len(X_text), dtype=bool)
         self.root_ = stump
 
         # recursively fit stumps and store as a decision tree
         stumps_queue = [stump]
         i = 0
         depth = 1
+        #import pdb; pdb.set_trace()
         while depth < self.max_depth:
             stumps_queue_new = []
             for stump in stumps_queue:
                 stump = stump
                 if self.verbose:
                     logging.debug(f'Splitting on {depth=} stump_num={i} {stump.idxs.sum()=}')
-                idxs_pred = stump.predict(X_text=X_text) > 0.5
+                #idxs_pred = stump.predict(X_text=X_text) > 0.5
+                idxs_pred = stump.predict_split(X_text=X_text) > 0.5
+                #import pdb; pdb.set_trace()
                 for idxs_p, attr in zip([~idxs_pred, idxs_pred], ['child_left', 'child_right']):
                     # for idxs_p, attr in zip([idxs_pred], ['child_right']):
                     idxs_child = stump.idxs & idxs_p
@@ -119,28 +224,36 @@ class Tree:
                             and len(np.unique(y[idxs_child])) > 1:
 
                         # fit a potential child stump
+                        #import pdb; pdb.set_trace()
+                        X_text_child = []
+                        for text, idx_child in zip(X_text, idxs_child):
+                            if idx_child:
+                                X_text_child.append(text)
+                        #import pdb; pdb.set_trace()
                         stump_child = stump_class(**stump_kwargs).fit(
-                            X_text=X_text[idxs_child],
+                            X_text=X_text_child,
                             y=y[idxs_child],
                             feature_names=self.feature_names,
-                            X=X[idxs_child],
+                            #X=X[idxs_child],
+                            prompts=prompts
                         )
 
                         # make sure the stump actually found a non-trivial split
                         if not stump_child.failed_to_split:
                             stump_child.idxs = idxs_child
-                            acc_tree_baseline = np.mean(self.predict(
-                                X_text=X_text[idxs_child]) == y[idxs_child])
+                            #acc_tree_baseline = np.mean(self.predict_label(
+                            #    X_text=X_text[idxs_child]) == y[idxs_child])
                             if attr == 'child_left':
                                 stump.child_left = stump_child
                             else:
                                 stump.child_right = stump_child
                             stumps_queue_new.append(stump_child)
-                            if self.verbose:
-                                logging.debug(f'\t\t {stump.stump_keywords} {stump.pos_or_neg}')
+                            #if self.verbose:
+                            #    logging.debug(f'\t\t {stump.stump_keywords} {stump.pos_or_neg}')
                             i += 1
 
                         ######################### checks ###########################
+                            self.assert_checks = False
                             if self.assert_checks:
                                 # check acc for the points in this stump
                                 acc_tree = np.mean(self.predict(
@@ -168,7 +281,8 @@ class Tree:
 
         return self
 
-    def predict_proba(self, X_text: List[str] = None):
+    def predict_proba_old(self, X_text: List[str] = None):
+        #import pdb; pdb.set_trace()
         preds = []
         for x_t in X_text:
 
@@ -192,9 +306,34 @@ class Tree:
         probs = np.vstack((1 - preds, preds)).transpose()  # probs (n, 2)
         return probs
 
+    def predict_proba(self, X_text: List[str] = None):
+        #import pdb; pdb.set_trace()
+        preds = []
+        for x_t in X_text:
+            # prediction for single point
+            stump = self.root_
+            while stump:
+                # 0 or 1 class prediction here
+                pred_split = stump.predict_split(X_text=[x_t + '\nOutput:'])
+                #value = stump.value
+
+                if pred_split == 0:
+                    value = stump.best_left_label
+                    stump = stump.child_left
+                else:
+                    value = stump.best_right_label
+                    stump = stump.child_right
+
+                if stump is None:
+                    preds.append(value)
+        preds = np.array(preds)
+        #probs = np.vstack((1 - preds, preds)).transpose()  # probs (n, 2)
+        return preds
+
     def predict(self, X_text: List[str] = None) -> np.ndarray[int]:
-        preds_bool = self.predict_proba(X_text=X_text)[:, 1]
-        return (preds_bool > 0.5).astype(int)
+        #import pdb; pdb.set_trace()
+        preds_bool = self.predict_proba(X_text=X_text)
+        return preds_bool.astype(int)
     
 
     def __str__(self):

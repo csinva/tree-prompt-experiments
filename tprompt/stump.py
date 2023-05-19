@@ -1,9 +1,11 @@
 from typing import List
-
+import tqdm
 from abc import ABC, abstractmethod
 import logging
-
+import copy
+import random
 import imodels
+import imodelsx
 import imodelsx.util
 import imodelsx.metrics
 import numpy as np
@@ -13,7 +15,7 @@ from sklearn.linear_model import LogisticRegression
 import torch.cuda
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
-from .utils import load_lm
+#from .utils import load_lm
 
 class Stump(ABC):
     def __init__(
@@ -76,13 +78,16 @@ class Stump(ABC):
     def _set_value_acc_samples(self, X_text, y):
         """Set value and accuracy of stump.
         """
-        idxs_right = self.predict(X_text).astype(bool)
+        #idxs_right = self.predict_label(X_text).astype(bool)
+        idxs_right = self.predict_split(X_text).astype(bool)
         n_right = idxs_right.sum()
         if n_right == 0 or n_right == y.size:
             self.failed_to_split = True
-            return
+            #import pdb; pdb.set_trace()
+            #return
         else:
             self.failed_to_split = False
+        #import pdb; pdb.set_trace()
         self.value = [np.mean(y[~idxs_right]), np.mean(y[idxs_right])]
         self.value_mean = np.mean(y)
         self.n_samples = [y.size - idxs_right.sum(), idxs_right.sum()]
@@ -97,16 +102,16 @@ class PromptStump(Stump):
             logging.info(f'Loading model {self.checkpoint}')
             self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
             self.tokenizer = AutoTokenizer.from_pretrained(self.checkpoint, use_fast=True)
-            self.model = load_lm(
-                checkpoint=self.checkpoint,
-                tokenizer=self.tokenizer,
-            ).to(self.device)
+            #self.model = load_lm(
+            #    checkpoint=self.checkpoint,
+            #    tokenizer=self.tokenizer,
+            #).to(self.device)
 
-    def fit(self, X_text: List[str], y, feature_names=None, X=None):
+    def fit(self, X_text: List[str], y, feature_names=None, X=None, prompts=None):
         # check input and set some attributes
         assert len(np.unique(y)) > 1, 'y should have more than 1 unique value'
-        X, y, _ = imodels.util.arguments.check_fit_arguments(
-            self, X, y, feature_names)
+        #X, y, _ = imodels.util.arguments.check_fit_arguments(
+        #    self, X, y, feature_names)
         self.feature_names = feature_names
         if isinstance(self.feature_names, list):
             self.feature_names = np.array(self.feature_names).flatten()
@@ -114,11 +119,40 @@ class PromptStump(Stump):
         # actually run fitting
         input_strings = X_text
         verbalizer_dict = self._get_verbalizer()
-        output_strings = [verbalizer_dict[int(yi)] for yi in y]
+        #output_strings = [verbalizer_dict[int(yi)] for yi in y]
+        output_strings = [str(yi) for yi in y]
+        #import pdb; pdb.set_trace()
 
         # get prompt
         if self.split_strategy == 'manual':
             self.prompt = self.args.prompt
+        elif True:
+            best_prompt = None
+            best_impurity = float('inf')
+            best_left_label = None
+            best_right_label = None
+            best_num_left = None
+            best_num_right = None
+
+            #import pdb; pdb.set_trace()
+            prompts = copy.deepcopy(prompts)
+            random.shuffle(prompts)
+            for prompt in tqdm.tqdm(prompts[:self.args.num_prompts]):
+                impurity, left_label, right_label, num_left, num_right = self.find_impurity(prompt, input_strings, output_strings)
+                if impurity < best_impurity:
+                    best_impurity = impurity
+                    best_prompt = prompt
+                    best_left_label = left_label
+                    best_right_label = right_label
+                    best_num_left = num_left
+                    best_num_right = num_right
+            print (f'{best_impurity}, {best_prompt}, {best_left_label}, {best_right_label}, {best_num_left}, {best_num_right}')
+            #import pdb; pdb.set_trace()
+            self.prompt = best_prompt
+            self.best_left_label = best_left_label
+            self.best_right_label = best_right_label
+            self.best_num_left = best_num_left
+            self.best_num_right = best_num_right
         else:
             print("calling explain_dataset_iprompt with verbosity", self.verbose)
             self.model = self.model.to('cpu')
@@ -149,17 +183,42 @@ class PromptStump(Stump):
             self.meta = metadata
 
         # set value (calls self.predict)
+        #import pdb; pdb.set_trace()
+        #X_text = X_text[:64]
+        #y = y[:64]
         self._set_value_acc_samples(X_text, y)
         
         return self
 
-    def predict(self, X_text: List[str]) -> np.ndarray[int]:
+    def predict_split(self, X_text: List[str], p=None) -> np.ndarray[int]:
         '''todo: pass in model here so we can share it across all stumps
         '''
-        preds_proba = self.predict_proba(X_text)
+        if p is None:
+            #import pdb; pdb.set_trace()
+            p = self.prompt
+        preds_proba = self.predict_proba(X_text, p=p)
         return np.argmax(preds_proba, axis=1)
 
-    def predict_proba(self, X_text: List[str]) -> np.ndarray[float]:
+    def predict(self, X_text: List[str], p=None):
+        assert False
+
+    def predict_label(self, X_text: List[str], p=None):
+        '''todo: pass in model here so we can share it across all stumps
+        '''
+        if p is None:
+            #import pdb; pdb.set_trace()
+            p = self.prompt
+        preds_proba = self.predict_proba(X_text, p=p)
+        splits = np.argmax(preds_proba, axis=1)
+        predicted = []
+        for split in splits:
+            if split == 0:
+                predicted.append(self.best_left_label)
+            else:
+                predicted.append(self.best_right_label)
+        return np.array(predicted, dtype=np.int)
+
+    def predict_proba(self, X_text: List[str], p=None) -> np.ndarray[float]:
         '''todo: pass in model here so we can share it across all stumps
         '''
         target_strs = list(self._get_verbalizer().values())
@@ -167,11 +226,56 @@ class PromptStump(Stump):
         # only predict based on first token of output string
         target_token_ids = list(map(self._get_first_token_id, target_strs))
         preds = np.zeros((len(X_text), len(target_token_ids)))
+        #import pdb; pdb.set_trace()
         for i, x in enumerate(X_text):
+            if p is not None:
+                #import pdb; pdb.set_trace()
+                x = p + x
             preds[i] = self._get_logit_for_target_tokens(x, target_token_ids)
 
         # return the class with the highest logit
         return softmax(preds, axis=1)
+
+    def find_impurity(self, prompt, input_strings, output_strings, max_size=-1):
+        if max_size > 0:
+            input_strings = input_strings[:max_size]
+            output_strings = output_strings[:max_size]
+        #import pdb; pdb.set_trace()
+        predicted = self.predict_split(input_strings, p=prompt)
+        left_children = []
+        right_children = []
+        verbalizer_dict = self._get_verbalizer()
+        self.stoi = {}
+        for i in verbalizer_dict:
+            s = verbalizer_dict[i]
+            self.stoi[s] = i
+        #import pdb; pdb.set_trace()
+        for input_string, output_string, pred in zip(input_strings, output_strings, predicted):
+            if pred == 0:
+                #left_children.append((input_string, self.stoi[output_string]))
+                left_children.append((input_string, int(float(output_string))))
+            else:
+                #right_children.append((input_string, self.stoi[output_string]))
+                right_children.append((input_string, int(float(output_string))))
+        #import pdb; pdb.set_trace()
+        gini_left, left_label = self.find_gini(left_children)
+        gini_right, right_label = self.find_gini(right_children)
+        impurity = gini_left * len(left_children) + gini_right * len(right_children)
+        return impurity, left_label, right_label, len(left_children), len(right_children)
+
+    def find_gini(self, children):
+        #import pdb; pdb.set_trace()
+        num_labels = max([0]+[item[1] for item in children]) + 1
+        probs = torch.zeros(num_labels)
+        for input_string, output_label in children:
+            probs[output_label] += 1
+        #import pdb; pdb.set_trace()
+        probs = probs / max(1, probs.sum().item())
+        argmax_label = probs.view(-1).argmax(0).item()
+        gini = 1 - (probs*probs).sum().item()
+        return gini, argmax_label
+
+
 
     def _get_logit_for_target_tokens(self, prompt: str, target_token_ids: List[int]) -> np.ndarray[float]:
         """Get logits for each target token
@@ -225,19 +329,19 @@ class KeywordStump(Stump):
 
         # set value
         self._set_value_acc_samples(X_text, y)
-        if self.failed_to_split:
-            return self
+        #if self.failed_to_split:
+        #    return self
 
-        # checks
-        if self.assert_checks:
-            preds_text = self.predict(X_text)
-            preds_tab = self._predict_tabular(X)
-            assert np.all(
-                preds_text == preds_tab), 'predicting with text and tabular should give same results'
-            assert self.value[1] > self.value[0], 'right child should have greater val than left but value=' + \
-                str(self.value)
-            assert self.value[1] > self.value_mean, 'right child should have greater val than parent ' + \
-                str(self.value)
+        ## checks
+        #if self.assert_checks:
+        #    preds_text = self.predict(X_text)
+        #    preds_tab = self._predict_tabular(X)
+        #    assert np.all(
+        #        preds_text == preds_tab), 'predicting with text and tabular should give same results'
+        #    assert self.value[1] > self.value[0], 'right child should have greater val than left but value=' + \
+        #        str(self.value)
+        #    assert self.value[1] > self.value_mean, 'right child should have greater val than parent ' + \
+        #        str(self.value)
 
         return self
 

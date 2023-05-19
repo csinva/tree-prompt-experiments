@@ -10,6 +10,8 @@ def load_huggingface_dataset(dataset_name, subsample_frac=1.0):
     # load dset
     if dataset_name == 'tweet_eval':
         dset = datasets.load_dataset('tweet_eval', 'hate')
+    elif dataset_name == 'tweet_eval_emoji':
+        dset = datasets.load_dataset('tweet_eval', 'emoji')
     elif dataset_name == 'financial_phrasebank':
         train = datasets.load_dataset('financial_phrasebank', 'sentences_75agree',
                                       revision='main', split='train')
