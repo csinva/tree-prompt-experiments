@@ -47,14 +47,10 @@ def evaluate_model(tree, X_train, X_cv, X_test,
                                              [(X_train_text, X_train, y_train),
                                              (X_cv_text, X_cv, y_cv),
                                              (X_test_text, X_test, y_test)]):
+        print(f'evaluating split: {split_name}')
+        if split_name != 'test': continue
         # metrics discrete
         predict_parameters = inspect.signature(tree.predict).parameters.keys()
-        if 'X_text' in predict_parameters:
-            y_pred_ = tree.predict(model=tree.model, X_text=X_text_).astype(int)
-        else:
-            y_pred_ = tree.predict(X_)
-        for metric_name, metric_fn in metrics.items():
-            r[f'{metric_name}_{split_name}'] = metric_fn(y_, y_pred_)
 
         # metrics proba
         if hasattr(tree, 'predict_proba'):
@@ -65,10 +61,24 @@ def evaluate_model(tree, X_train, X_cv, X_test,
             if not multiclass:
                 y_pred_proba_ = y_pred_proba_[:, 1]
                 for metric_name, metric_fn in metrics_proba.items():
-                    r[f'{metric_name}_{split_name}'] = metric_fn(y_, y_pred_proba_)
+                    metric_split_name = f'{metric_name}_{split_name}'
+                    r[metric_split_name] = metric_fn(y_, y_pred_proba_)
+                    print(metric_split_name, r[metric_split_name])
             elif multiclass:
                 for metric_name, metric_fn in metrics_proba_multiclass.items():
-                    r[f'{metric_name}_{split_name}'] = metric_fn(y_, y_pred_proba_)
+                    metric_split_name = f'{metric_name}_{split_name}'
+                    r[metric_split_name] = metric_fn(y_, y_pred_proba_)
+                    print(metric_split_name, r[metric_split_name])
+            y_pred_ = (y_pred_proba_ > 0.5).astype(int)
+        else:
+            if 'X_text' in predict_parameters:
+                y_pred_ = tree.predict(model=tree.model, X_text=X_text_).astype(int)
+            else:
+                y_pred_ = tree.predict(X_)
+        for metric_name, metric_fn in metrics.items():
+            metric_split_name = f'{metric_name}_{split_name}'
+            r[metric_split_name] = metric_fn(y_, y_pred_)
+            print(metric_split_name, r[metric_split_name])
 
     return r
 
@@ -169,25 +179,21 @@ if __name__ == '__main__':
     # set seed
     np.random.seed(args.seed)
     random.seed(args.seed)
-    # torch.manual_seed(args.seed)
 
     # load text data
+    subsample_frac = (0.04 if args.dataset_name == 'yuntian-deng/gpt2-detectability-topk40' else None)
     X_train_text, X_test_text, y_train, y_test = imodelsx.data.load_huggingface_dataset(
         dataset_name=args.dataset_name,
-        # subsample_frac=args.subsample_frac,
+        subsample_frac=subsample_frac,
         return_lists=True,
         binary_classification=args.binary_classification,
     )
     if args.truncate_example_length > 0:
         X_train_text = [x[:args.truncate_example_length] for x in X_train_text]
         X_test_text = [x[:args.truncate_example_length] for x in X_test_text]
-        # print('examples', X_train_text[:30])
-
 
     # get converted tabular data
-    X_train, X_test, feature_names = \
-        tprompt.data.convert_text_data_to_counts_array(
-            X_train_text, X_test_text, ngrams=2)
+    
     if args.model_name.startswith('manual'):
         X_train, X_test, feature_names = \
             tprompt.prompts.engineer_prompt_features(
@@ -200,10 +206,21 @@ if __name__ == '__main__':
             X_train = enc.fit_transform(X_train)
             X_test = enc.transform(X_test)
             feature_names = enc.get_feature_names_out(feature_names)
+        # split (could subsample here too)
+        X_train, X_cv, X_train_text, X_cv_text, y_train, y_cv = train_test_split(
+            X_train, X_train_text, y_train, test_size=0.33, random_state=args.seed)
+    elif args.model_name.startswith('ngram'):
+
+        X_train, X_test, feature_names = \
+            tprompt.data.convert_text_data_to_counts_array(
+                X_train_text, X_test_text, ngrams=2)
+        # split (could subsample here too)
+        X_train, X_cv, X_train_text, X_cv_text, y_train, y_cv = train_test_split(
+            X_train, X_train_text, y_train, test_size=0.33, random_state=args.seed)
+    else:
+        X_train, X_test, feature_names = [], [], []
+    
         
-    # split (could subsample here too)
-    X_train, X_cv, X_train_text, X_cv_text, y_train, y_cv = train_test_split(
-        X_train, X_train_text, y_train, test_size=0.33, random_state=args.seed)
 
     # load model
     if args.model_name == 'tprompt':
@@ -213,6 +230,7 @@ if __name__ == '__main__':
             split_strategy=args.split_strategy,
             verbose=args.use_verbose,
             checkpoint=args.checkpoint,
+            assert_checks=False,
             checkpoint_prompting=args.checkpoint_prompting,
         )
     elif args.model_name == 'manual_tree':
@@ -252,7 +270,8 @@ if __name__ == '__main__':
         kwargs['feature_names'] = feature_names
     if 'X_text' in fit_parameters:
         kwargs['X_text'] = X_train_text
-    model.fit(X=X_train, y=y_train, **kwargs)
+    
+    model.fit(X=[], y=y_train, **kwargs)
 
     # evaluate
     r = evaluate_model(

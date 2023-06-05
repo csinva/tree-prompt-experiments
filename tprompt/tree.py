@@ -8,7 +8,7 @@ import logging
 import warnings
 from sklearn.base import BaseEstimator, ClassifierMixin, RegressorMixin
 from transformers import AutoTokenizer
-import warnings
+import tqdm
 from tprompt.utils import load_lm
 
 class Tree:
@@ -65,8 +65,8 @@ class Tree:
             ], ngrams=1)
 
         # check and set some attributes
-        X, y, _ = imodels.util.arguments.check_fit_arguments(
-            self, X, y, feature_names)
+        # X, y, _ = imodels.util.arguments.check_fit_arguments(
+        #     self, X, y, feature_names)
         if isinstance(X_text, list):
             X_text = np.array(X_text).flatten()
         self.feature_names = feature_names
@@ -101,9 +101,9 @@ class Tree:
             X_text=X_text,
             y=y,
             feature_names=self.feature_names,
-            X=X
+            X=[]
         )
-        stump.idxs = np.ones(X.shape[0], dtype=bool)
+        stump.idxs = np.ones(len(y), dtype=bool)
         self.root_ = stump
 
         # recursively fit stumps and store as a decision tree
@@ -142,16 +142,16 @@ class Tree:
                             X_text=X_text[idxs_child],
                             y=y[idxs_child],
                             feature_names=self.feature_names,
-                            X=X[idxs_child],
+                            X=[],
                         )
 
                         # make sure the stump actually found a non-trivial split
                         if not stump_child.failed_to_split:
                             logging.info(f"fit stump, testing acc (depth=%d).", depth)
                             stump_child.idxs = idxs_child
-                            acc_tree_baseline = np.mean(self.predict(
-                                model=model,
-                                X_text=X_text[idxs_child]) == y[idxs_child])
+                            # acc_tree_baseline = np.mean(self.predict(
+                            #     model=model,
+                            #     X_text=X_text[idxs_child]) == y[idxs_child])
                             if attr == 'child_left':
                                 stump.child_left = stump_child
                             else:
@@ -196,7 +196,7 @@ class Tree:
 
     def predict_proba(self, model, X_text: List[str] = None):
         preds = []
-        for x_t in X_text:
+        for x_t in tqdm.tqdm(X_text, desc="tree predict_proba", leave=False, colour="blue"):
 
             # prediction for single point
             stump = self.root_

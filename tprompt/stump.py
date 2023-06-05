@@ -111,13 +111,18 @@ class PromptStump(Stump):
         super(PromptStump, self).__init__(*args, **kwargs)
         if self.verbose:
             logging.info(f'Loading PromptStump with checkpoint {self.checkpoint}')
+        
+    def get_llm_prompt_suffix(self) -> str:
+        from tprompt.prompts import get_prompts
+        base_prompts = get_prompts(self.args, None, None, None, verbalizer_num=self.args.verbalizer_num, seed=1)
+        return f"Prompts:\n- {base_prompts[0]}\n- {base_prompts[1]}\n- {base_prompts[2]}\n-"
 
     def fit(self, model, X_text: List[str], y, feature_names=None, X=None):
         print("PromptStump fit()")
         # check input and set some attributes
         assert len(np.unique(y)) > 1, 'y should have more than 1 unique value'
-        X, y, _ = imodels.util.arguments.check_fit_arguments(
-            self, X, y, feature_names)
+        # X, y, _ = imodels.util.arguments.check_fit_arguments(
+        #     self, X, y, feature_names)
         self.feature_names = feature_names
         if isinstance(self.feature_names, list):
             self.feature_names = np.array(self.feature_names).flatten()
@@ -131,6 +136,9 @@ class PromptStump(Stump):
         if self.split_strategy == 'manual':
             self.prompt = self.args.prompt
         else:
+            # TODO: Load
+            # llm_prompt = 'Prompt:'
+            llm_prompt = self.get_llm_prompt_suffix()
             print(
                 f'calling explain_dataset_iprompt with batch size {self.args.batch_size}')
             prompts, metadata = imodelsx.explain_dataset_iprompt(
@@ -139,25 +147,25 @@ class PromptStump(Stump):
                 output_strings=output_strings,
                 checkpoint=self.checkpoint,  # which language model to use
                 num_learned_tokens=12,  # how long of a prompt to learn
-                n_shots=1,  # number of examples in context
+                n_shots=5,  # number of examples in context
                 # n_epochs=1,  # how many epochs to search
                 batch_size=self.args.batch_size,  # batch size for iprompt
                 llm_float16=False,  # whether to load the model in float_16
                 verbose=1,  # how much to print
-                # sets template like ${input}${prefix}
-                prefix_before_input=False,
+                prefix_before_input=False, # sets template like ${input}${prefix}
                 mask_possible_answers=True,  # only compute loss over valid output tokens
                 generation_repetition_penalty=1.0,
                 pop_topk_strategy='different_start_token',
                 pop_criterion='loss',
-                max_n_datapoints=len(input_strings),
+                do_final_reranking=True,
+                # max_n_datapoints=256,
+                max_n_datapoints=10**5,
                 max_length=64, # max length of datapoints (left-truncated before prompt)
-                # on an a6000 gpu with gpt2-xl in fp16 and batch size 32,
-                # 100 steps takes around 30 minutes.
-                max_n_steps=2, # limit search by a fixed number of steps
+                max_n_steps=200, # limit search by a fixed number of steps
+                llm_api="gpt-3.5-turbo", # ["gpt-3.5-turbo", "text-curie-001"]
+                llm_candidate_regeneration_prompt_start="What prompt would you give to a language model to classify the following data? \nData:",
+                llm_candidate_regeneration_prompt_end=llm_prompt,
             )
-            # Consider just the top-32 prompts for splitting the tree.
-            prompts = prompts[:32]
             
             torch.cuda.empty_cache()
             print('((sent model to cuda))')

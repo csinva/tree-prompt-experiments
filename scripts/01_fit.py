@@ -15,15 +15,16 @@ cache_prompt_features_dir = '/home/jxm3/research/prompting/tree-prompt/cache_pro
 
 # List of values to sweep over (sweeps over all combinations of these)
 params_shared_dict = {
-    'seed': [1, 2],
-    'save_dir': [join(save_dir, 'tree-prompt', 'may17', 'test-gpt2')],
+    'seed': [0], # [0, 1, 2],
+    'save_dir': [join(save_dir, 'tree-prompt', 'jun2')],
     # 'use_cache': [1], # pass binary values with 0/1 instead of the ambiguous strings True/False
     # 'dataset_name': ['rotten_tomatoes', 'sst2'], #, 'imdb'],
-    'verbalizer_num': [0, 1], # [0, 1],
+    'verbalizer_num': [0], # [0, 1], # [0, 1],
     'cache_prompt_features_dir': [cache_prompt_features_dir],
     'model_name': ['tprompt'],
     'split_strategy': ['iprompt'],
-    'max_depth': [1, 3, 5],
+    'max_depth': [5],
+    'prompt_source': 'manual', # For populating meta-prompt
 }
 
 # List of tuples to sweep over (these values are coupled, and swept over together)
@@ -35,17 +36,16 @@ params_coupled_dict = {
          )
 
         for (checkpoint, batch_size) in [
-            # ('gpt2', 128),
-            ('EleutherAI/gpt-j-6B', 64),
-            # ('EleutherAI/gpt-j-6B', 1),  
+            # ('EleutherAI/gpt-j-6B', 64),
+            ('gpt2', 128),
         ]
 
         for (dataset_name, binary_classification) in [
-            # ('rotten_tomatoes', 1),
+            # ('imdb', 1),
+            ('rotten_tomatoes', 1),
             # ('sst2', 1),
-            ('imdb', 1),
-            ('financial_phrasebank', 0),
-            ('emotion', 0),
+            # ('financial_phrasebank', 0),
+            # ('emotion', 0),
         ]
     ],
     
@@ -77,7 +77,7 @@ def get_gpu_ids() -> List[str]:
 submit_utils.run_args_list(
     args_list,
     script_name=join(repo_dir, 'experiments', '01_fit.py'),
-    actually_run=False,
+    actually_run=True,
     # n_cpus=16,
     gpu_ids = get_gpu_ids(),
     # gpu_ids=[0, 1],
@@ -87,4 +87,13 @@ submit_utils.run_args_list(
     # reverse=True,
     n_cpus=1,
     shuffle=False,
+    slurm=False,
+    slurm_kwargs={
+        "partition": "gpu",
+        "gres": "gpu:a6000:1",
+        "ntasks": 1,
+        "cpus-per-task": 4,
+        "mem": "48G",
+        "time": "72:00:00",
+    },
 )

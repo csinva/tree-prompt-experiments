@@ -26,6 +26,8 @@ def get_verbalizer(args):
 
     VERB_LIST_DEFAULT = [VERB_0, VERB_1]
 
+    VERB_DETECTABILITY_0 = {0: ' Human', 1: ' Machine'}
+
     # keys are (dataset_name, binary_classification)
     DATA_OUTPUT_STRINGS = {
         ('rotten_tomatoes', 1): VERB_LIST_DEFAULT,
@@ -35,6 +37,7 @@ def get_verbalizer(args):
         ('financial_phrasebank', 1): VERB_LIST_DEFAULT,
         ('financial_phrasebank', 0): [VERB_FFB_0, VERB_FFB_1],
         ('emotion', 0): [VERB_EMOTION_0],
+        ('yuntian-deng/gpt2-detectability-topk40', 1): [VERB_DETECTABILITY_0, VERB_1]
     }
      #.get(args.dataset_name, VERB_LIST_DEFAULT)[args.verbalizer_num]
     return DATA_OUTPUT_STRINGS[(args.dataset_name, args.binary_classification)][args.verbalizer_num]
@@ -158,10 +161,16 @@ PROMPTS_MOVIE_0 = list(set([
     ' The movie was a thrilling ride, but also a bit cliché',
     ' The movie was visually stunning, but lacked substance',
 ]))
+PROMPTS_MOVIE_1 = [
+    'Was the movie good?',
+    'Did the reviewer enjoy the movie?',
+    'Am I happy about it?',
+    'Was the movie predictable?',
+]
 
 PROMPTS_FINANCE_0 = sorted(list(set([
     ' The financial sentiment of this phrase is',
-    ' The senement of this sentence is',
+    ' The sentiment of this sentence is',
     ' The general tone here is',
     ' I feel the sentiment is',
     ' The feeling for the economy here was',
@@ -208,6 +217,11 @@ PROMPTS_FINANCE_0 = sorted(list(set([
     "The company's financial performance is expected to have what impact on the market:",
     "The latest financial report suggests that the company's financial strategy has been",
 ])))
+PROMPTS_FINANCE_1 = [
+    'Is our revenue trending in a positive direction?',
+    'Overall, was this a good earnings report?',
+    'Is the company financially healthy?',
+]
 
 PROMPTS_EMOTION_0 = list(set([
     ' The emotion of this sentence is:',
@@ -251,17 +265,52 @@ PROMPTS_EMOTION_0 = list(set([
     ' Wow this made me feel',
     ' This tweet expresses',
 ]))
+PROMPTS_EMOTION_1 = [
+    'Is the preceding tweet a happy emotion?',
+    'Does this tweet make me feel angry?',
+    'Am I surprised by the content of this tweet?'
+]
+PROMPTS_DETECTABILITY_0 = [
+    'Was the author of this passage human or machine? The answer is',
+    'This was written by a',
+    'The author of this text was a',
+]
+PROMPTS_DETECTABILITY_1 = [
+    'Was the author of this passage human or machine?',
+    'Did GPT-2, a language model, write this text?',
+    'Do you think this text is human-written?',
+]
 
-def get_prompts(args, X_train_text, y_train, verbalizer, seed=1):
+
+PROMPTS_MOVIE = {
+    0: PROMPTS_MOVIE_0,
+    1: PROMPTS_MOVIE_1,
+}
+PROMPTS_FINANCE = {
+    0: PROMPTS_FINANCE_0,
+    1: PROMPTS_FINANCE_1,
+}
+PROMPTS_EMOTION = {
+    0: PROMPTS_EMOTION_0,
+    1: PROMPTS_FINANCE_1,
+}
+PROMPTS_DETECTABILITY = {
+    0: PROMPTS_DETECTABILITY_0,
+    1: PROMPTS_DETECTABILITY_1,
+}
+
+def get_prompts(args, X_train_text, y_train, verbalizer, verbalizer_num=0, seed=1):
     assert args.prompt_source in ['manual', 'data_demonstrations']
     rng = np.random.default_rng(seed=seed)
     if args.prompt_source == 'manual':
         if args.dataset_name in ['rotten_tomatoes', 'sst2', 'imdb']:
-            return PROMPTS_MOVIE_0
+            return PROMPTS_MOVIE[verbalizer_num]
         elif args.dataset_name in ['financial_phrasebank']:
-            return PROMPTS_FINANCE_0
+            return PROMPTS_FINANCE[verbalizer_num]
         elif args.dataset_name in ['emotion']:
-            return PROMPTS_EMOTION_0
+            return PROMPTS_EMOTION[verbalizer_num]
+        elif args.dataset_name in ['yuntian-deng/gpt2-detectability-topk40']:
+            return PROMPTS_DETECTABILITY[verbalizer_num]
         else:
             raise ValueError('need to set prompt in get_prompts!')
     elif args.prompt_source == 'data_demonstrations':
