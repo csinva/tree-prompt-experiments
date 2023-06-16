@@ -1,0 +1,215 @@
+loading model in fp32 from checkpoint gpt2
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 8530 datapoints, now loading model...
+Beginning epoch 0
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+Ending epoch 0 early...
+Stopping early after 20 steps and 20 datapoints
+Final prefixes
+   index                                         prefix_str  ... loss  accuracy
+0      0   Did the reviewer have any positive things to ...  ...   -1  0.675415
+1      8   Did the reviewers have positive opinions abou...  ...   -1  0.665894
+2      5   Did the reviewer have a positive reaction to ...  ...   -1  0.662598
+3     13   Did the reviews contain positive comments abo...  ...   -1  0.661621
+4     11   Did the reviewer have a positive opinion of t...  ...   -1  0.655518
+
+[5 rows x 5 columns]
+((sent model to cuda))
+Got 14 prompts. Top prompt: ` Did the reviewer have any positive things to say about the movie?`
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 5500 datapoints, now loading model...
+Beginning epoch 0
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Ending epoch 0 early...
+Stopping early after 20 steps and 20 datapoints
+Final prefixes
+   index                                         prefix_str  ... loss  accuracy
+0      5   Did the reviewers have positive opinions abou...  ...   -1  0.648727
+1      7   Does the review mention the movie's objective...  ...   -1  0.636364
+2      1                Did the movie have oppressive gore?  ...   -1  0.636182
+3      4   Does the text express a positive opinion abou...  ...   -1  0.635818
+4      8   Did the reviewer have a negative opinion of t...  ...   -1  0.634727
+
+[5 rows x 5 columns]
+((sent model to cuda))
+Got 10 prompts. Top prompt: ` Did the reviewers have positive opinions about the movie?`
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 3030 datapoints, now loading model...
+Beginning epoch 0
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Ending epoch 0 early...
+Stopping early after 20 steps and 20 datapoints
+Final prefixes
+   index                                         prefix_str  ... loss  accuracy
+0      4   Did the reviewer have a positive experience w...  ...   -1  0.747855
+1      7   Did the reviewer have positive things to say ...  ...   -1  0.747855
+2     12   Did the reviewers have positive things to say...  ...   -1  0.747855
+3     10   Did the reviewer have a positive opinion of t...  ...   -1  0.744884
+4      1              Did the reviewer recommend the movie?  ...   -1  0.740264
+
+[5 rows x 5 columns]
+((sent model to cuda))
+Got 14 prompts. Top prompt: ` Did the reviewer have a positive experience with the movie?`
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 4933 datapoints, now loading model...
+Beginning epoch 0
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Ending epoch 0 early...
+Stopping early after 20 steps and 20 datapoints
+Final prefixes
+   index                                         prefix_str  ... loss  accuracy
+0      1   Did the reviewers give positive feedback abou...  ...   -1  0.660247
+1      2   Did the reviewers have any criticisms about t...  ...   -1  0.659031
+2      7   Did the reviewers have positive opinions abou...  ...   -1  0.659031
+3     11   Did the reviewers give positive reviews to th...  ...   -1  0.659031
+4      0   Does the text express a positive view of the ...  ...   -1  0.658017
+
+[5 rows x 5 columns]
+((sent model to cuda))
+Got 13 prompts. Top prompt: ` Did the reviewers give positive feedback about the movie?`
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 567 datapoints, now loading model...
+Beginning epoch 0
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Ending epoch 0 early...
+Stopping early after 20 steps and 20 datapoints
+Final prefixes
+   index                                         prefix_str  ... loss  accuracy
+0      2   Did the reviewer have a positive experience w...  ...   -1  0.566138
+1      1   Did the reviewer provide positive feedback ab...  ...   -1  0.559083
+2      3   Did the reviewer have positive things to say ...  ...   -1  0.559083
+3      5   Did the reviewers have positive opinions abou...  ...   -1  0.559083
+4      9       Did the performances in the movie stand out?  ...   -1  0.559083
+
+[5 rows x 5 columns]
+((sent model to cuda))
+Got 13 prompts. Top prompt: ` Did the reviewer have a positive experience watching the movie?`
+evaluating split: train
+roc_auc_train 0.6943442150935462
+accuracy_train 0.6851113716295428
+balanced_accuracy_train 0.6851113716295427
+evaluating split: cv
+evaluating split: test
+roc_auc_test 0.7078433167070882
+accuracy_test 0.6941838649155723
+balanced_accuracy_test 0.6941838649155723

@@ -1,0 +1,211 @@
+loading model in fp16 from checkpoint EleutherAI/gpt-j-6B
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 67349 datapoints, now loading model...
+Beginning epoch 0
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+not cached
+cached!
+cached!
+not cached
+cached!
+cached!
+cached!
+not cached
+cached!
+not cached
+not cached
+cached!
+cached!
+cached!
+not cached
+cached!
+cached!
+not cached
+not cached
+not cached
+cached!
+cached!
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+cached!
+cached!
+cached!
+cached!
+cached!
+not cached
+not cached
+not cached
+not cached
+cached!
+not cached
+not cached
+not cached
+cached!
+cached!
+cached!
+not cached
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+not cached
+cached!
+not cached
+Ending epoch 0 early...
+Stopping early after 200 steps and 200 datapoints

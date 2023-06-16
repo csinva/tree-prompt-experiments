@@ -1,0 +1,133 @@
+loading model in fp32 from checkpoint gpt2
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 8530 datapoints, now loading model...
+Beginning epoch 0
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+Ending epoch 0 early...
+Stopping early after 20 steps and 20 datapoints
+Final prefixes
+   index                                         prefix_str  ... loss  accuracy
+0      5   Did the reviewer have positive feelings towar...  ...   -1  0.699219
+1      1   Did the reviewer have a positive opinion of t...  ...   -1  0.673828
+2      3   Did the reviewers have positive opinions abou...  ...   -1  0.673828
+3      0   Did the reviewers have positive opinions abou...  ...   -1  0.671875
+4      8   Did the reviewer give a positive review of th...  ...   -1  0.646484
+
+[5 rows x 5 columns]
+((sent model to cuda))
+Got 12 prompts. Top prompt: ` Did the reviewer have positive feelings towards the movie?`
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 4838 datapoints, now loading model...
+Beginning epoch 0
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+Ending epoch 0 early...
+Stopping early after 20 steps and 20 datapoints
+Final prefixes
+   index                                         prefix_str  ... loss  accuracy
+0      9   Did the performances in the movie receive pra...  ...   -1  0.656250
+1      0   Did some members of the audience leave the th...  ...   -1  0.654297
+2      1   Did the reviewer have any criticisms about th...  ...   -1  0.654297
+3      2   Did the reviewers have a negative opinion of ...  ...   -1  0.654297
+4      6   Did the reviewers have negative opinions abou...  ...   -1  0.654297
+
+[5 rows x 5 columns]
+((sent model to cuda))
+Got 14 prompts. Top prompt: ` Did the performances in the movie receive praise?`
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 3692 datapoints, now loading model...
+Beginning epoch 0
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+Ending epoch 0 early...
+Stopping early after 20 steps and 20 datapoints
+Final prefixes
+   index                                         prefix_str  ... loss  accuracy
+0     10              Did the reviewer recommend the movie?  ...   -1  0.728516
+1     13   Did the reviewers have positive things to say...  ...   -1  0.722656
+2      0   Did the reviews contain positive or negative ...  ...   -1  0.714844
+3      2   Did the reviewer find the movie engaging and ...  ...   -1  0.714844
+4      6   Did the reviewer have positive things to say ...  ...   -1  0.714844
+
+[5 rows x 5 columns]
+((sent model to cuda))
+Got 17 prompts. Top prompt: ` Did the reviewer recommend the movie?`
+evaluating split: train
+roc_auc_train 0.6810229944929214
+accuracy_train 0.676084407971864
+balanced_accuracy_train 0.676084407971864
+evaluating split: cv
+evaluating split: test
+roc_auc_test 0.6878830225739119
+accuracy_test 0.6716697936210131
+balanced_accuracy_test 0.6716697936210132

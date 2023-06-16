@@ -1,0 +1,3621 @@
+loading model in fp32 from checkpoint gpt2
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 8530 datapoints, now loading model...
+Beginning epoch 0
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+Ending epoch 0 early...
+Stopping early after 200 steps and 200 datapoints
+Final prefixes
+   index                                         prefix_str  ... loss  accuracy
+0     48   Did the reviewer give positive feedback about...  ...   -1  0.678467
+1     32              Did the reviewer recommend the movie?  ...   -1  0.677124
+2     62   Did the reviewer have any positive things to ...  ...   -1  0.675415
+3     38   Did the reviewer have positive feelings towar...  ...   -1  0.673096
+4     33   Did the reviewer have a positive emotional re...  ...   -1  0.670166
+
+[5 rows x 5 columns]
+((sent model to cuda))
+Got 69 prompts. Top prompt: ` Did the reviewer give positive feedback about the movie?`
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 4143 datapoints, now loading model...
+Beginning epoch 0
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Ending epoch 0 early...
+Stopping early after 200 steps and 200 datapoints
+Final prefixes
+   index                                         prefix_str  ... loss  accuracy
+0     40   Did the reviewers have positive opinions abou...  ...   -1  0.686459
+1     10   Did the reviewer praise the movie's cast and ...  ...   -1  0.685735
+2     15   Did the movie entertain on a guilty-pleasure,...  ...   -1  0.684528
+3     53              Did the movie entertain the reviewer?  ...   -1  0.684528
+4     22       Did the movie appeal to a specific audience?  ...   -1  0.684528
+
+[5 rows x 5 columns]
+((sent model to cuda))
+Got 74 prompts. Top prompt: ` Did the reviewers have positive opinions about the movies they watched?`
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 4387 datapoints, now loading model...
+Beginning epoch 0
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Ending epoch 0 early...
+Stopping early after 200 steps and 200 datapoints
+Final prefixes
+   index                                         prefix_str  ... loss  accuracy
+0     92   Did the reviewers have positive things to say...  ...   -1  0.681559
+1     44   Did the reviewers have a positive experience ...  ...   -1  0.680419
+2     78              Did the reviewer recommend the movie?  ...   -1  0.676544
+3     31   Did the reviewer find the movie worth sitting...  ...   -1  0.676088
+4     70   Did the reviewer have a positive experience w...  ...   -1  0.675405
+
+[5 rows x 5 columns]
+((sent model to cuda))
+Got 95 prompts. Top prompt: ` Did the reviewers have positive things to say about the movie?`
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 4130 datapoints, now loading model...
+Beginning epoch 0
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+Ending epoch 0 early...
+Stopping early after 200 steps and 200 datapoints
+Final prefixes
+   index                                         prefix_str  ... loss  accuracy
+0     10   Did the reviewer praise the movie's cast and ...  ...   -1  0.686441
+1     15   Did the movie entertain on a guilty-pleasure,...  ...   -1  0.686199
+2     53              Did the movie entertain the reviewer?  ...   -1  0.686199
+3     50   Did the reviewer have criticisms about the mo...  ...   -1  0.685956
+4     34   Did the director make fun of the subjects in ...  ...   -1  0.685956
+
+[5 rows x 5 columns]
+((sent model to cuda))
+Got 74 prompts. Top prompt: ` Did the reviewer praise the movie's cast and performances?`
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 13 datapoints, now loading model...
+Beginning epoch 0
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 1
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 2
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 3
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 4
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 5
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 6
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 7
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 8
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 9
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 10
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 11
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 12
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 13
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 14
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 15
+not cached
+not cached
+not cached
+not cached
+not cached
+Ending epoch 15 early...
+Stopping early after 200 steps and 200 datapoints
+Final prefixes
+   index                                         prefix_str  ... loss  accuracy
+0     19   Did the reviewer have a positive experience w...  ...   -1  0.846154
+1     23            Did fans of the series enjoy the movie?  ...   -1  0.846154
+2     20          Did the reviewer find the movie improved?  ...   -1  0.846154
+3      1   Did the reviewer have a positive experience w...  ...   -1  0.846154
+4     18           Did the movie receive a positive review?  ...   -1  0.846154
+
+[5 rows x 5 columns]
+((sent model to cuda))
+Got 39 prompts. Top prompt: ` Did the reviewer have a positive experience with the movie?`
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 111 datapoints, now loading model...
+Beginning epoch 0
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 1
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Ending epoch 1 early...
+Stopping early after 200 steps and 200 datapoints
+Final prefixes
+   index                                         prefix_str  ... loss  accuracy
+0     48   Did the reviewer acknowledge and celebrate th...  ...   -1  0.657658
+1      0   Did the reviewers have negative opinions abou...  ...   -1  0.648649
+2     82   Did the movie neglect the cartoon's less cons...  ...   -1  0.648649
+3     46   Did the movie rely on tired tropes and offens...  ...   -1  0.648649
+4     56   Does the language in the data suggest a posit...  ...   -1  0.648649
+
+[5 rows x 5 columns]
+((sent model to cuda))
+Got 89 prompts. Top prompt: ` Did the reviewer acknowledge and celebrate the cheesiness of the movie?`
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 4276 datapoints, now loading model...
+Beginning epoch 0
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Ending epoch 0 early...
+Stopping early after 200 steps and 200 datapoints
+Final prefixes
+   index                                         prefix_str  ... loss  accuracy
+0     61   Did the reviewer have a positive experience w...  ...   -1  0.683583
+1     14   Did the reviewer have positive things to say ...  ...   -1  0.683115
+2     65   Did the reviewer have positive things to say ...  ...   -1  0.682647
+3     29        Did the reviewer find the movie compelling?  ...   -1  0.682647
+4     84   Did the reviewers have positive things to say...  ...   -1  0.682413
+
+[5 rows x 5 columns]
+((sent model to cuda))
+Got 85 prompts. Top prompt: ` Did the reviewer have a positive experience watching the movie?`
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 4106 datapoints, now loading model...
+Beginning epoch 0
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Ending epoch 0 early...
+Stopping early after 200 steps and 200 datapoints
+Final prefixes
+   index                                         prefix_str  ... loss  accuracy
+0     17   Did the movie entertain the reviewer on a gui...  ...   -1  0.687530
+1      1   Did the movie entertain on a guilty-pleasure,...  ...   -1  0.687530
+2     47              Did the movie entertain the reviewer?  ...   -1  0.687530
+3     52   Did the reviewer give a positive review of th...  ...   -1  0.687287
+4     37   Did the reviewers give negative reviews to th...  ...   -1  0.687287
+
+[5 rows x 5 columns]
+((sent model to cuda))
+Got 64 prompts. Top prompt: ` Did the movie entertain the reviewer on a guilty-pleasure, so-bad-it's-funny level?`
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 24 datapoints, now loading model...
+Beginning epoch 0
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 1
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 2
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 3
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 4
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 5
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 6
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 7
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 8
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Ending epoch 8 early...
+Stopping early after 200 steps and 200 datapoints
+Final prefixes
+   index                                         prefix_str  ... loss  accuracy
+0     48   Did the reviewers have positive things to say...  ...   -1  0.666667
+1     21   Did the reviewers have positive opinions abou...  ...   -1  0.666667
+2     51   Did the reviewers in Group 1 enjoy the movies...  ...   -1  0.625000
+3     40   Did the reviewers have a positive experience ...  ...   -1  0.625000
+4     33   Did the reviewers find the movie dull or enjo...  ...   -1  0.625000
+
+[5 rows x 5 columns]
+((sent model to cuda))
+Got 52 prompts. Top prompt: ` Did the reviewers have positive things to say about the movie?`
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 110 datapoints, now loading model...
+Beginning epoch 0
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 1
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Ending epoch 1 early...
+Stopping early after 200 steps and 200 datapoints
+Final prefixes
+   index                                         prefix_str  ... loss  accuracy
+0     78   Did the reviewers have positive things to say...  ...   -1  0.654545
+1     15   Did the reviewers have negative opinions abou...  ...   -1  0.654545
+2      2   Did the reviewers have a negative opinion of ...  ...   -1  0.654545
+3      3   Did the reviewers have negative opinions abou...  ...   -1  0.654545
+4     77   Did the reviewer give a positive review to th...  ...   -1  0.654545
+
+[5 rows x 5 columns]
+((sent model to cuda))
+Got 79 prompts. Top prompt: ` Did the reviewers have positive things to say about the movie?`
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 27 datapoints, now loading model...
+Beginning epoch 0
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 1
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 2
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 3
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 4
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 5
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 6
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 7
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Ending epoch 7 early...
+Stopping early after 200 steps and 200 datapoints
+Final prefixes
+   index                                         prefix_str  ... loss  accuracy
+0     34   Did the reviewer give positive reviews for th...  ...   -1  0.592593
+1     51   Did the reviewers have a negative experience ...  ...   -1  0.592593
+2     50   Did the reviewer give a positive review of th...  ...   -1  0.592593
+3     43   Did the reviewer have a negative opinion of t...  ...   -1  0.592593
+4     63   Does the language in the data convey positive...  ...   -1  0.592593
+
+[5 rows x 5 columns]
+((sent model to cuda))
+Got 66 prompts. Top prompt: ` Did the reviewer give positive reviews for the movie?`
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 4249 datapoints, now loading model...
+Beginning epoch 0
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Ending epoch 0 early...
+Stopping early after 200 steps and 200 datapoints
+Final prefixes
+   index                                         prefix_str  ... loss  accuracy
+0      8   Did the reviewer have positive things to say ...  ...   -1  0.685808
+1     21        Did the reviewer find the movie compelling?  ...   -1  0.684396
+2     48       Did the reviewer enjoy the movie in Group 2?  ...   -1  0.684396
+3     63   Did the reviewer have positive things to say ...  ...   -1  0.684396
+4     11        Did the reviewer find the movie satisfying?  ...   -1  0.684396
+
+[5 rows x 5 columns]
+((sent model to cuda))
+Got 81 prompts. Top prompt: ` Did the reviewer have positive things to say about the movies in Group 1?`
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 4105 datapoints, now loading model...
+Beginning epoch 0
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+Ending epoch 0 early...
+Stopping early after 200 steps and 200 datapoints
+Final prefixes
+   index                                         prefix_str  ... loss  accuracy
+0     47              Did the movie entertain the reviewer?  ...   -1  0.687698
+1     17   Did the movie entertain the reviewer on a gui...  ...   -1  0.687454
+2     52   Did the reviewer give a positive review of th...  ...   -1  0.687454
+3      1   Did the movie entertain on a guilty-pleasure,...  ...   -1  0.687454
+4     37   Did the reviewers give negative reviews to th...  ...   -1  0.687454
+
+[5 rows x 5 columns]
+((sent model to cuda))
+Got 64 prompts. Top prompt: ` Did the movie entertain the reviewer?`
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 21 datapoints, now loading model...
+Beginning epoch 0
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 1
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 2
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 3
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 4
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 5
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 6
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 7
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 8
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 9
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Ending epoch 9 early...
+Stopping early after 200 steps and 200 datapoints
+Final prefixes
+   index                                         prefix_str  ... loss  accuracy
+0     56   Did the reviewer have a positive opinion of t...  ...   -1  0.666667
+1      6   Did the reviewer have mixed feelings about th...  ...   -1  0.666667
+2      7             Did the reviewer find the movie funny?  ...   -1  0.666667
+3     10          Did the reviewer find the food enjoyable?  ...   -1  0.666667
+4      0   Did the reviewer enjoy the content they were ...  ...   -1  0.619048
+
+[5 rows x 5 columns]
+((sent model to cuda))
+Got 61 prompts. Top prompt: ` Did the reviewer have a positive opinion of the subject being reviewed?`
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 35 datapoints, now loading model...
+Beginning epoch 0
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 1
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 2
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 3
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 4
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Beginning epoch 5
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Ending epoch 5 early...
+Stopping early after 200 steps and 200 datapoints
+Final prefixes
+   index                                         prefix_str  ... loss  accuracy
+0     32     Did the movie successfully evoke a subculture?  ...   -1  0.657143
+1     96   Did the reviewer give a positive review to th...  ...   -1  0.628571
+2     88   Did the movie have believable characters and ...  ...   -1  0.628571
+3     72   Did the reviewer give a positive review of th...  ...   -1  0.628571
+4      0   Did the reviewers have negative opinions abou...  ...   -1  0.600000
+
+[5 rows x 5 columns]
+((sent model to cuda))
+Got 100 prompts. Top prompt: ` Did the movie successfully evoke a subculture?`
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 4214 datapoints, now loading model...
+Beginning epoch 0
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+not cached
+not cached
+not cached
+not cached
+cached!
+cached!
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+cached!
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Ending epoch 0 early...
+Stopping early after 200 steps and 200 datapoints
+Final prefixes
+   index                                         prefix_str  ... loss  accuracy
+0     59                     Did the documentary work well?  ...   -1  0.686758
+1     71   Did the reviewer have positive things to say ...  ...   -1  0.686521
+2     23      Did the reviewer find the movie entertaining?  ...   -1  0.686521
+3     69   Did the reviewer have positive things to say ...  ...   -1  0.686521
+4     27   Did the reviewers have positive things to say...  ...   -1  0.686521
+
+[5 rows x 5 columns]
+((sent model to cuda))
+Got 91 prompts. Top prompt: ` Did the documentary work well?`
+evaluating split: train
+roc_auc_train 0.6882288152015712
+accuracy_train 0.6867526377491208
+balanced_accuracy_train 0.6867526377491208
+evaluating split: cv
+evaluating split: test
+roc_auc_test 0.7000376642531038
+accuracy_test 0.6960600375234521
+balanced_accuracy_test 0.6960600375234521

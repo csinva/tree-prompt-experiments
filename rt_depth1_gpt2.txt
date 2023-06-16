@@ -1,0 +1,51 @@
+loading model in fp32 from checkpoint gpt2
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 128
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 8530 datapoints, now loading model...
+Beginning epoch 0
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+cached!
+Ending epoch 0 early...
+Stopping early after 20 steps and 20 datapoints
+Final prefixes
+   index                                         prefix_str  ... loss  accuracy
+0      3   Did the reviewer have positive feelings towar...  ...   -1  0.699219
+1      0   Did the reviewers have positive opinions abou...  ...   -1  0.673828
+2      7   Did the reviewer have a positive opinion of t...  ...   -1  0.673828
+3      1   Did the reviewers have positive opinions abou...  ...   -1  0.671875
+4     11   Did the reviewer give a positive review of th...  ...   -1  0.646484
+
+[5 rows x 5 columns]
+((sent model to cuda))
+Got 12 prompts. Top prompt: ` Did the reviewer have positive feelings towards the movie?`
+evaluating split: train
+roc_auc_train 0.6746776084407973
+accuracy_train 0.6746776084407972
+balanced_accuracy_train 0.6746776084407973
+evaluating split: cv
+evaluating split: test
+roc_auc_test 0.6866791744840527
+accuracy_test 0.6866791744840526
+balanced_accuracy_test 0.6866791744840526

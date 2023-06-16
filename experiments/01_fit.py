@@ -15,6 +15,8 @@ import pickle as pkl
 import imodelsx.data
 import inspect
 import os
+import torch
+import transformers
 
 import tprompt.tree
 import tprompt.data
@@ -48,7 +50,8 @@ def evaluate_model(tree, X_train, X_cv, X_test,
                                              (X_cv_text, X_cv, y_cv),
                                              (X_test_text, X_test, y_test)]):
         print(f'evaluating split: {split_name}')
-        if split_name != 'test': continue
+        if 'cv' in split_name: continue
+
         # metrics discrete
         predict_parameters = inspect.signature(tree.predict).parameters.keys()
 
@@ -177,17 +180,31 @@ if __name__ == '__main__':
     logging.info(f'\n\n\tsaving to ' + save_dir_unique + '\n')
 
     # set seed
-    np.random.seed(args.seed)
     random.seed(args.seed)
+    np.random.seed(args.seed)
+    torch.manual_seed(args.seed)
+    transformers.set_seed(args.seed)
 
     # load text data
-    subsample_frac = (0.04 if args.dataset_name == 'yuntian-deng/gpt2-detectability-topk40' else None)
+    subsample_frac = (0.04 if args.dataset_name == 'yuntian-deng/gpt2-detectability-topk40' else 0)
     X_train_text, X_test_text, y_train, y_test = imodelsx.data.load_huggingface_dataset(
         dataset_name=args.dataset_name,
         subsample_frac=subsample_frac,
         return_lists=True,
         binary_classification=args.binary_classification,
     )
+
+    # randomize order (in case it's pre-sorted.)
+    train_order = list(np.arange(len(X_train_text)))
+    random.shuffle(train_order)
+    X_train_text = [X_train_text[i] for i in train_order]
+    y_train = np.array([y_train[i] for i in train_order])
+
+    test_order = list(range(len(X_test_text)))
+    random.shuffle(test_order)
+    X_test_text = [X_test_text[i] for i in test_order]
+    y_test = np.array([y_test[i] for i in test_order])
+
     if args.truncate_example_length > 0:
         X_train_text = [x[:args.truncate_example_length] for x in X_train_text]
         X_test_text = [x[:args.truncate_example_length] for x in X_test_text]
@@ -210,7 +227,6 @@ if __name__ == '__main__':
         X_train, X_cv, X_train_text, X_cv_text, y_train, y_cv = train_test_split(
             X_train, X_train_text, y_train, test_size=0.33, random_state=args.seed)
     elif args.model_name.startswith('ngram'):
-
         X_train, X_test, feature_names = \
             tprompt.data.convert_text_data_to_counts_array(
                 X_train_text, X_test_text, ngrams=2)
@@ -219,8 +235,14 @@ if __name__ == '__main__':
             X_train, X_train_text, y_train, test_size=0.33, random_state=args.seed)
     else:
         X_train, X_test, feature_names = [], [], []
+        X_cv, y_cv, X_cv_text = [], [], []
     
-        
+    # # <tmp> (for testing)
+    # tmpx = X_train_text[:512]
+    # tmpy = y_train[:512]
+    # X_train_text, X_cv_text, X_test_text = tmpx, tmpx, tmpx
+    # y_train, y_cv, y_test = tmpy, tmpy, tmpy
+    # # </tmp>
 
     # load model
     if args.model_name == 'tprompt':

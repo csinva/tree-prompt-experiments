@@ -148,7 +148,6 @@ class PromptStump(Stump):
                 checkpoint=self.checkpoint,  # which language model to use
                 num_learned_tokens=12,  # how long of a prompt to learn
                 n_shots=5,  # number of examples in context
-                # n_epochs=1,  # how many epochs to search
                 batch_size=self.args.batch_size,  # batch size for iprompt
                 llm_float16=False,  # whether to load the model in float_16
                 verbose=1,  # how much to print
@@ -158,12 +157,11 @@ class PromptStump(Stump):
                 pop_topk_strategy='different_start_token',
                 pop_criterion='loss',
                 do_final_reranking=True,
-                # max_n_datapoints=256,
                 max_n_datapoints=10**5,
                 max_length=64, # max length of datapoints (left-truncated before prompt)
-                max_n_steps=200, # limit search by a fixed number of steps
+                max_n_steps=200, # 200 # limit search by a fixed number of steps
                 llm_api="gpt-3.5-turbo", # ["gpt-3.5-turbo", "text-curie-001"]
-                llm_candidate_regeneration_prompt_start="What prompt would you give to a language model to classify the following data? \nData:",
+                llm_candidate_regeneration_prompt_start="What question would you give to a language model to classify the following data? The answer to the question be Yes or No. \n\nData:\n",
                 llm_candidate_regeneration_prompt_end=llm_prompt,
             )
             
