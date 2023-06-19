@@ -210,7 +210,6 @@ if __name__ == '__main__':
         X_test_text = [x[:args.truncate_example_length] for x in X_test_text]
 
     # get converted tabular data
-    
     if args.model_name.startswith('manual'):
         X_train, X_test, feature_names = \
             tprompt.prompts.engineer_prompt_features(
