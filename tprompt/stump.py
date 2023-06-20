@@ -138,7 +138,7 @@ class PromptStump(Stump):
         else:
             # TODO: Load
             # llm_prompt = 'Prompt:'
-            llm_prompt_start = "What question would you give to a language model to distinguish between Group 1 and Group 2? Please read the text and respond with a distinguishing question that applies to all datapoints and is different than previosuly written. Don't make any references to groups like Group 1 or Group 2. The answer to the question be Yes or No. \n\nData:\n"
+            llm_prompt_start = "What question would you give to a language model to distinguish between Group 1 and Group 2? Please read the text and respond with a distinguishing question that applies to all datapoints and is different than previosuly written. Don't make any references to groups like Group 1 or Group 2. The answer to the question be Yes or No. And please make sure that the question ignores the content matter and focus on linguistic features, syntax, and writing style.\n\nData:\n"
             # llm_prompt_end = self.get_llm_prompt_suffix()
             llm_prompt_end = "Question:\n"
             print(
@@ -161,9 +161,9 @@ class PromptStump(Stump):
                 do_final_reranking=True,
                 max_n_datapoints=10**5,
                 max_length=64, # max length of datapoints (left-truncated before prompt)
-                max_n_steps=200, # 200 # limit search by a fixed number of steps
-                # llm_api="gpt-4",
-                llm_api="gpt-3.5-turbo", # ["gpt-3.5-turbo", "text-curie-001"]
+                max_n_steps=20, # 200 # limit search by a fixed number of steps
+                llm_api="gpt-4",
+                # llm_api="gpt-3.5-turbo", # ["gpt-3.5-turbo", "text-curie-001"]
                 llm_candidate_regeneration_prompt_start=llm_prompt_start,
                 llm_candidate_regeneration_prompt_end=llm_prompt_end,
             )

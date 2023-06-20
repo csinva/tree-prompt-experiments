@@ -323,6 +323,7 @@ def get_prompts(args, X_train_text, y_train, verbalizer, verbalizer_num=0, seed=
                 list(filter(lambda ex: ex[1] == y, zip(X_train_text, y_train))))
         prompts = []
         while len(prompts) < args.num_prompts:
+            print("len(prompts)", len(prompts), "args.num_prompts", args.num_prompts, "len(unique_ys):", len(unique_ys))
             prompt = ''
             for y in unique_ys:
                 example = rng.choice(examples_by_y[y])
