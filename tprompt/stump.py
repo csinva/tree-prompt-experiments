@@ -161,7 +161,7 @@ class PromptStump(Stump):
                 do_final_reranking=True,
                 max_n_datapoints=10**5,
                 max_length=64, # max length of datapoints (left-truncated before prompt)
-                max_n_steps=20, # 200 # limit search by a fixed number of steps
+                max_n_steps=100, # 200 # limit search by a fixed number of steps
                 llm_api="gpt-4",
                 # llm_api="gpt-3.5-turbo", # ["gpt-3.5-turbo", "text-curie-001"]
                 llm_candidate_regeneration_prompt_start=llm_prompt_start,
