@@ -1,0 +1,34 @@
+loading model in fp16 from checkpoint EleutherAI/gpt-j-6B
+[0] Stump::init()
+[1] Stump::init()
+PromptStump fit()
+calling explain_dataset_iprompt with batch size 32
+start_word_id = tensor([1169])
+preprefix: ''
+iPrompt got 8530 datapoints, now loading model...
+Beginning epoch 0
+cached!
+cached!
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+not cached
+Ending epoch 0 early...
+Stopping early after 20 steps and 20 datapoints
+collecting possble answers
+creating eval data
+calling test_prefixes_api
