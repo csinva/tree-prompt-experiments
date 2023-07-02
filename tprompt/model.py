@@ -76,8 +76,11 @@ def _get_model(model_name: str, num_prompts: int, seed: int, args=None):
             checkpoint_prompting=args.checkpoint_prompting,
         )
     elif model_name == "manual_tree":
+        max_leaf_nodes = num_prompts + 1
+        if args.max_leaf_nodes > 0:
+            max_leaf_nodes = args.max_leaf_nodes
         return sklearn.tree.DecisionTreeClassifier(
-            max_leaf_nodes=num_prompts + 1,
+            max_leaf_nodes=max_leaf_nodes,
             random_state=seed,
         )
     elif model_name == "manual_ensemble":

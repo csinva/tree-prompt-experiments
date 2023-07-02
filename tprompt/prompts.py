@@ -1,11 +1,15 @@
 from typing import Dict, List
 from transformers import AutoTokenizer
 from tprompt.utils import load_lm
+import torch
+import argparse
 import numpy as np
 import tprompt.stump
 import tprompt.tree
 import tprompt.data
 from tqdm import trange, tqdm
+import random
+import copy
 import logging
 import joblib
 import os
@@ -38,6 +42,25 @@ def get_verbalizer(args):
         5: " Surprise.",
     }
     # VERB_EMOTION_1 = {0: ' No.', 1: ' Maybe.', 2: ' Yes.'}
+    dbpedia_labels = [
+                        "Company",
+                        "EducationalInstitution",
+                        "Artist",
+                        "Athlete",
+                        "OfficeHolder",
+                        "MeanOfTransportation",
+                        "Building",
+                        "NaturalPlace",
+                        "Village",
+                        "Animal",
+                        "Plant",
+                        "Album",
+                        "Film",
+                        "WrittenWork",
+    ]
+    VERB_DBPEDIA_0 = {}
+    for i, label in enumerate(dbpedia_labels):
+        VERB_DBPEDIA_0[i] = label
 
     VERB_LIST_DEFAULT = [VERB_0, VERB_1]
 
@@ -50,6 +73,7 @@ def get_verbalizer(args):
         ("financial_phrasebank", 1): VERB_LIST_DEFAULT,
         ("financial_phrasebank", 0): [VERB_FFB_0, VERB_FFB_1],
         ("emotion", 0): [VERB_EMOTION_0],
+        ('dbpedia_14', 0): [VERB_DBPEDIA_0],
     }
     # .get(args.dataset_name, VERB_LIST_DEFAULT)[args.verbalizer_num]
     return DATA_OUTPUT_STRINGS[(args.dataset_name, args.binary_classification)][
@@ -277,7 +301,8 @@ PROMPTS_EMOTION_0 = list(
 
 
 def get_prompts(args, X_train_text, y_train, verbalizer, seed=1):
-    assert args.prompt_source in ["manual", "data_demonstrations"]
+    assert args.prompt_source in ['manual', 'data_demonstrations', 'data_demonstrations_knn']
+    random.seed(seed)
     rng = np.random.default_rng(seed=seed)
     if args.prompt_source == "manual":
         if args.dataset_name in ["rotten_tomatoes", "sst2", "imdb"]:
@@ -317,6 +342,71 @@ def get_prompts(args, X_train_text, y_train, verbalizer, seed=1):
                 prompts.append(prompt)
                 prompt_pbar.update(1)
         return prompts
+    elif args.prompt_source == 'data_demonstrations_knn':
+        #assert m is not None
+        template = args.template_data_demonstrations
+        # 1, 0 since positive usually comes first
+        unique_ys = sorted(list(set(y_train)), key=lambda x: -x)
+        examples_by_y = {}
+        for y in unique_ys:
+            examples_by_y[y] = sorted(
+                list(filter(lambda ex: ex[1] == y, zip(X_train_text, y_train))))
+
+        #import pdb; pdb.set_trace()
+        prompts_template = [] # the templates containing anchors
+        prompts = [] # actually used for testing
+        #probs_list = []
+        #logits_list = []
+        prompts_inputs_list = []
+        prompts_labels_list = []
+        indices_by_y = {}
+        current_id_by_y = {}
+        for y in unique_ys:
+            current_id_by_y[y] = 0
+            indices = list(range(len(examples_by_y[y])))
+            random.shuffle(indices)
+            indices_by_y[y] = indices
+        #assert args.num_prompts == 1, args.num_prompts
+        while len(prompts) < args.num_prompts:
+            prompt = ''
+            for _ in range(args.num_data_demonstrations_per_class):
+                unique_ys_shuffled = copy.deepcopy(unique_ys)
+                random.shuffle(unique_ys_shuffled)
+                for y in unique_ys_shuffled:
+                    example = examples_by_y[y][current_id_by_y[y]]
+                    current_id_by_y[y] = (current_id_by_y[y] + 1) % (len(examples_by_y[y]))
+#rng.choice(    examples_by_y[y])
+                    text, _ = example
+                    prompt += template % (text, verbalizer[y]) + '\n'
+            prompts.append(prompt)
+            prompt_base = prompt
+            #m.prompt = prompt
+
+            prompt_anchors = []
+            zeros = [0]*len(unique_ys)
+            prompts_inputs = []
+            prompts_labels = [] # bsz
+            for _ in range(args.num_anchors):
+                for y_anchor in unique_ys:
+                    labels = copy.deepcopy(zeros)
+                    #example = rng.choice(examples_by_y[y_anchor])
+                    example = examples_by_y[y_anchor][current_id_by_y[y_anchor]]
+                    current_id_by_y[y_anchor] = (current_id_by_y[y_anchor] + 1) % (len(examples_by_y[y_anchor]))
+                    text, _ = example
+                    prompt = text
+                    prompts_inputs.append(prompt)
+                    labels[y_anchor] = 1
+                    prompts_labels.append(labels)
+# what is important is the output logits, not the prompt
+                    #prompt_anchors.append((prompt, labels))
+            #prompts_template.append(prompt_anchors)
+            #probs, logits = m.predict_proba(prompts_inputs) # bsz, V
+            #probs_list.append(probs.data.clone())
+            #logits_list.append(logits.data.clone())
+            prompts_inputs_list.append(prompts_inputs)
+            prompts_labels_list.append(prompts_labels)
+        #return list(zip(prompts, probs_list, logits_list, prompts_labels_list))
+        return list(zip(prompts, prompts_inputs_list, prompts_labels_list))
 
 
 def _calc_features_single_prompt(X, y, m, p, past_key_values=None):
@@ -329,7 +419,18 @@ def _calc_features_single_prompt(X, y, m, p, past_key_values=None):
         preds = m.predict_with_cache(X, past_key_values)
     else:
         preds = m.predict(X)
+    ###if m.args.prompt_source == "data_demonstrations_knn":
+    ###    K = preds.shape[-1]
+    ###    y = torch.LongTensor(y)
+    ###    y_onehot = y.new_zeros(y.shape[0], K).long()
+    ###    y_onehot.scatter_(1, y.view(-1, 1), 1)
+    ###    acc = (preds == y_onehot).all(-1).sum().item() / preds.shape[0]
+    ###    print (f'accuracy: {acc}')
+    ###else:
+    ###    acc = np.mean(preds == y)
+    #import pdb; pdb.set_trace()
     acc = np.mean(preds == y)
+    print (f'accuracy: {acc}')
     return preds, acc
 
 
@@ -352,6 +453,13 @@ def calc_prompt_features(
 
     # test different manual stumps
     # print('prompts', prompts)
+    ###if args.prompt_source != 'data_demonstrations_knn':
+    ###    multiplier = 1
+    ###else:
+    ###    multiplier = len(prompts[0][-1][0])
+    ###prompt_features_train = np.zeros((len(X_train_text), len(prompts)*multiplier))
+    ###prompt_features_test = np.zeros((len(X_test_text), len(prompts)*multiplier))
+    ###accs_train = np.zeros(len(prompts)*multiplier)
     prompt_features_train = np.zeros((len(X_train_text), len(prompts)))
     prompt_features_test = np.zeros((len(X_test_text), len(prompts)))
     accs_train = np.zeros(len(prompts))
@@ -369,7 +477,9 @@ def calc_prompt_features(
             "template_data_demonstrations",
         ]
         args_dict_cache = {k: v for k, v in args._get_kwargs() if k in arg_names_cache}
-        args_dict_cache["prompt"] = p
+        args_dict_cache['prompt'] = p if args.prompt_source != 'data_demonstrations_knn' else p[0] + '\n'.join(p[1])
+        args_dict_cache['train_size'] = len(X_train_text)
+        args_dict_cache['test_size'] = len(X_train_text)
         save_dir_unique_hash = sha256(args_dict_cache)
         cache_file = join(cache_prompt_features_dir, f"{save_dir_unique_hash}.pkl")
 
@@ -397,19 +507,39 @@ def calc_prompt_features(
             #import pdb; pdb.set_trace()
             past_key_values = None
             if args.cache_prompt == 1:
+                #assert False
                 m.prompt = p
                 past_key_values = m.calc_key_values(X_train_text)
+            #import pdb; pdb.set_trace()
+            if args.prompt_source == 'data_demonstrations_knn': # need to compute anchor logits and probs
+                assert past_key_values is not None
+                probs, logits = m.predict_proba_with_cache(p[1], past_key_values)
+                m.anchor_probs = probs
+                m.anchor_logits = logits
+            #import pdb; pdb.set_trace()
             preds_train, acc_train = _calc_features_single_prompt(X_train_text, y_train, m, p, past_key_values=past_key_values)
             preds_test, _ = _calc_features_single_prompt(X_test_text, y_test, m, p, past_key_values=past_key_values)
             joblib.dump((preds_train, preds_test, acc_train), cache_file)
 
         prompt_features_train[:, i] = preds_train
         prompt_features_test[:, i] = preds_test
+        ###prompt_features_train[:, i*multiplier:(i+1)*multiplier] = preds_train
+        ###prompt_features_test[:, i*multiplier:(i+1)*multiplier] = preds_test
         accs_train[i] = acc_train
+
+    ###if args.prompt_source == 'data_demonstrations_knn':
+    ###    feature_names = []
+    ###    for prompt in prompts:
+    ###        for i in range(multiplier):
+    ###            feature_names.append(f'{i}_{prompt}')
+    ###    return prompt_features_train, prompt_features_test, np.array(feature_names).tolist()
+    feature_names = prompts
+    if args.prompt_source == 'data_demonstrations_knn':
+        feature_names = [prompt[0] for prompt in prompts]
 
     a = np.argsort(accs_train.flatten())[::-1]
     return (
         prompt_features_train[:, a],
         prompt_features_test[:, a],
-        np.array(prompts)[a].tolist(),
+        np.array(feature_names)[a].tolist(),
     )

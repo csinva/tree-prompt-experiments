@@ -12,6 +12,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.linear_model import LogisticRegression
 import torch.cuda
 import tqdm
+import math
 from transformers import AutoTokenizer, AutoModelForCausalLM
 
 
@@ -147,10 +148,29 @@ class PromptStump:
         return state
 
     def predict(self, X_text: List[str]) -> np.ndarray[int]:
+        assert not self.args.prompt_source == "data_demonstrations_knn"
         preds_proba = self.predict_proba(X_text)
         return np.argmax(preds_proba, axis=1)
 
     def predict_with_cache(self, X_text: List[str], past_key_values) -> np.ndarray[int]:
+        if self.args.prompt_source == "data_demonstrations_knn":
+            #import pdb; pdb.set_trace()
+            preds_proba, preds_logits = self.predict_proba_with_cache(X_text, past_key_values)
+            #import pdb; pdb.set_trace()
+            probs, logits = self.anchor_probs, self.anchor_logits
+            labels = self.prompt[-1]
+            labels = torch.LongTensor(labels) # num_anchors, K
+            K = labels.shape[-1]
+
+            cross_entropy = preds_proba @ logits.T # 1024, num_anchors
+            preds_labels = cross_entropy.argsort(-1, descending=True)[:, :self.args.knn].contiguous() # 1024, knn
+            preds_onehot_labels = labels.gather(0, preds_labels.view(-1, 1).expand(-1, K)) # 1024*knn, K
+            preds_onehot_labels = preds_onehot_labels.view(-1, self.args.knn, K)
+            preds_onehot_labels = preds_onehot_labels.sum(1).argmax(-1) # 1024
+            return preds_onehot_labels.numpy()
+            ###onehot_labels = preds_onehot_labels.new_zeros(preds_onehot_labels.shape[0], K).long()
+            ###onehot_labels.scatter_(1, preds_onehot_labels.view(-1, 1), 1)
+            ###return onehot_labels
         preds_proba = self.predict_proba_with_cache(X_text, past_key_values)
         return np.argmax(preds_proba, axis=1)
 
@@ -199,6 +219,16 @@ class PromptStump:
                 target_token_ids,
                 batch_size=self.batch_size,
             )
+        elif self.args.prompt_source == "data_demonstrations_knn":
+            #import pdb; pdb.set_trace()
+            template = self.args.template_data_demonstrations
+            preds = self._get_logit_for_all_tokens_batched_with_cache(
+                past_key_values,
+                [template % (x, "") for x in X_text],
+                batch_size=self.batch_size,
+            ).float()
+            #import pdb; pdb.set_trace()
+            return preds.softmax(dim=-1), preds.log_softmax(dim=-1)
         else:
             raise NotImplementedError
             preds = self._get_logit_for_target_tokens_batched(
@@ -226,18 +256,35 @@ class PromptStump:
         self.tokenizer.padding = True
 
         self.tokenizer.pad_token = self.tokenizer.eos_token
-        if self.args.prompt_source == "data_demonstrations":
+        if self.args.prompt_source == "data_demonstrations" or self.args.prompt_source == 'data_demonstrations_knn':
+            p = self.prompt
+            if self.args.prompt_source == 'data_demonstrations_knn':
+                p = self.prompt[0]
             template = self.args.template_data_demonstrations
             if self.args.dataset_name.startswith("knnp__"):
                 max_len_verb = max(len(self.tokenizer.encode(v)) for v in self.verbalizer.values())
                 max_len_input = max_len_verb + max(len(self.tokenizer.encode(s)) for s in X_text) + 1
             else:
-                max_len_input = max([len(self.tokenizer.encode(template % (s, random.choice(list(self.verbalizer.values()))))) for s in X_text])
+                max_len_input = -1
+                for v in self.verbalizer.values():
+                    max_len_input = max(max_len_input, max([len(self.tokenizer.encode(template % (s, v))) for s in X_text[:1000]]))
             max_total_len = self.model.config.n_positions
             max_len_prompt = max_total_len - max_len_input
+            if True:#'dbpedia' in self.args.dataset_name or max_len_prompt < 0: # dbpedia
+                print ('max len prompt less than 0, truncating to the left')
+                #import pdb; pdb.set_trace()
+                max_len_input = -1
+                for v in self.verbalizer.values():
+                    a = [len(self.tokenizer.encode(template % (s, v))) for s in X_text[:1000]]
+                    max_len_input = max(max_len_input, np.percentile(a, 95))
+            max_len_input = int(math.ceil(max_len_input))
+            max_len_prompt = max_total_len - max_len_input
+            self.max_len_input = max_len_input
+            print (f'max_len_prompt: {max_len_prompt}, max_len_input: {max_len_input}')
+            #import pdb; pdb.set_trace()
             assert max_len_prompt > 0
             inputs = self.tokenizer(
-                [self.prompt,],
+                [p,],
                 return_tensors="pt",
                 padding=False,
                 truncation=True,
@@ -376,6 +423,62 @@ class PromptStump:
                         for token_output_id in target_token_ids
                     ]
                 )
+
+    def _get_logit_for_all_tokens_batched_with_cache(
+        self, past_key_values, prompts: List[str], batch_size: int = 64
+    ):
+        """Get logits for each target token
+        This can fail when token_output_ids represents multiple tokens
+        So things get mapped to the same id representing "unknown"
+        """
+        logit_targets_list = []
+        batch_num = 0
+
+        pbar = tqdm.tqdm(
+            total=len(prompts), leave=False, desc="getting predictions", colour="red"
+        )
+
+        past_key_values_new = []
+        for i in range(len(past_key_values)):
+            past_key_values_new.append( [past_key_values[i][0].expand(batch_size, -1, -1, -1), past_key_values[i][1].expand(batch_size, -1, -1, -1)] )
+        while True:
+            batch_start = batch_num * batch_size
+            batch_end = (batch_num + 1) * batch_size
+            batch_num += 1
+            pbar.update(batch_size)
+            if batch_start >= len(prompts):
+                return torch.stack(logit_targets_list, dim=0)
+
+            prompts_batch = prompts[batch_start:batch_end]
+            if len(prompts_batch) != past_key_values_new[0][0].shape[0]:
+                for i in range(len(past_key_values)):
+                    past_key_values_new[i] = [past_key_values[i][0].expand(len(prompts_batch), -1, -1, -1), past_key_values[i][1].expand(len(prompts_batch), -1, -1, -1)] 
+            self.tokenizer.padding = True
+            self.tokenizer.pad_token = self.tokenizer.eos_token
+            assert self.tokenizer.truncation_side == 'left'
+            inputs = self.tokenizer(
+                prompts_batch,
+                return_tensors="pt",
+                padding=True,
+                truncation=True,
+                max_length=self.max_len_input,
+                return_attention_mask=True,
+            ).to(self.model.device)
+
+            attention_mask = inputs['attention_mask']
+            attention_mask = torch.cat((attention_mask.new_zeros(len(prompts_batch), past_key_values[0][0].shape[-2]).fill_(1), attention_mask), dim=-1)
+            inputs['attention_mask'] = attention_mask
+
+            # shape is (batch_size, seq_len, vocab_size)
+            # print(">>", past_key_values[0][0].shape)
+            # print({ k: v.shape for k,v in inputs.items() })
+            with torch.no_grad():
+                outputs = self.model(**inputs, past_key_values=past_key_values_new)
+            logits = outputs["logits"]
+            token_output_positions = inputs["attention_mask"].sum(axis=1) - past_key_values[0][0].shape[-2]
+            for i in range(len(prompts_batch)):
+                token_output_position = token_output_positions[i].item() - 1
+                logit_targets_list.append(logits[i, token_output_position, :].cpu())
     # def _get_logit_for_target_tokens(self, prompt: str, target_token_ids: List[int]) -> np.ndarray[float]:
     #     """Get logits for each target token
     #     This can fail when token_output_ids represents multiple tokens
