@@ -33,7 +33,7 @@ def get_text_data(args):
         # format like knnprompting__imdb
         dataset_name = args.dataset_name.split('__')[1]
         X_train_text, X_test_text, y_train, y_test = tprompt.data.load_knnprompting_dataset(
-            dataset_name, 100  # 10_000
+            dataset_name, 10_000
         )
         # Essentially disable templating in favor of knnprompt templating
         args.template_data_demonstrations = '%s%s'
@@ -52,71 +52,18 @@ def get_text_data(args):
                        for x in X_test_text]
 
     if args.subsample_train_size > 0:
-        sss = args.subsample_train_size
-        X_train_text = X_train_text[:sss]
-        y_train = y_train[:sss]
+        sss = min(args.subsample_train_size, len(X_train_text))
+        rng = np.random.default_rng(args.seed)
+        idx = rng.choice(len(X_train_text), sss, replace=False)
+        X_train_text = [X_train_text[i] for i in idx]
+        y_train = y_train[idx]
     if args.subsample_test_size > 0:
-        sss = args.subsample_test_size
-        X_test_text = X_test_text[:sss]
-        y_test = y_test[:sss]
+        sss = min(args.subsample_test_size, len(X_test_text))
+        rng = np.random.default_rng(args.seed + 1)
+        idx = rng.choice(len(X_test_text), sss, replace=False)
+        X_test_text = [X_test_text[i] for i in idx]
+        y_test = y_test[idx]
     return X_train_text, X_test_text, y_train, y_test
-
-
-def evaluate_model(model, X_train, X_test,
-                   X_train_text, X_test_text,
-                   y_train, y_test, r):
-    """Evaluate model performance on each split
-    """
-    metrics = {
-        'accuracy': accuracy_score,
-        # 'precision': partial(precision_score, zero_division=0),
-        # 'recall': partial(recall_score, zero_division=0),
-        'balanced_accuracy': balanced_accuracy_score,
-    }
-    metrics_proba = {
-        'roc_auc': roc_auc_score,
-        # 'brier_score_loss': brier_score_loss,
-    }
-    metrics_proba_multiclass = {
-        'roc_auc': partial(roc_auc_score, multi_class='ovr'),
-    }
-    multiclass = len(np.unique(y_train)) > 2
-    for split_name, (X_text_, X_, y_) in zip(
-        ['train', 'test'],
-            [(X_train_text, X_train, y_train), (X_test_text, X_test, y_test)]):
-        # sometimes cv split may be none
-        if X_text_ is not None:
-
-            # metrics discrete
-            predict_parameters = inspect.signature(
-                model.predict).parameters.keys()
-            if 'X_text' in predict_parameters:
-                y_pred_ = model.predict(X_text=X_text_).astype(int)
-            else:
-                y_pred_ = model.predict(X_)
-            for metric_name, metric_fn in metrics.items():
-                r[f'{metric_name}_{split_name}'] = metric_fn(y_, y_pred_)
-
-            # metrics proba
-            if hasattr(model, 'predict_proba'):
-                if 'X_text' in predict_parameters:
-                    y_pred_proba_ = model.predict_proba(X_text=X_text_)
-                else:
-                    y_pred_proba_ = model.predict_proba(X_)
-                if not multiclass:
-                    y_pred_proba_ = y_pred_proba_[:, 1]
-                    for metric_name, metric_fn in metrics_proba.items():
-                        r[f'{metric_name}_{split_name}'] = metric_fn(
-                            y_, y_pred_proba_)
-                elif multiclass:
-                    for metric_name, metric_fn in metrics_proba_multiclass.items():
-                        try:
-                            r[f'{metric_name}_{split_name}'] = metric_fn(
-                                y_, y_pred_proba_)
-                        except:
-                            r[f'{metric_name}_{split_name}'] = -1
-
-    return r
 
 
 def add_main_args(parser):
@@ -144,8 +91,6 @@ def add_main_args(parser):
                         help='the underlying model used for prediction (or for constructing features from prompt)')
     parser.add_argument('--verbalizer_num', type=int, default=0,
                         help='which verbalizer to use')
-    parser.add_argument('--num_prompts', type=int,
-                        default=10, help='number of prompts to use')
     parser.add_argument('--prompt_source', type=str, default='manual', choices=['manual', 'data_demonstrations'],
                         help='''where prompts come from. Setting to manual would use PROMPTS_MOVIE_0, and data_demonstrations
                         would use example demonstrations from training set.''')
@@ -161,6 +106,11 @@ def add_main_args(parser):
                         default=300, help='Amount to subsample the training data')
     parser.add_argument('--subsample_test_size', type=int,
                         default=300, help='Amount to subsample the testing data')
+
+    parser.add_argument('--num_prompts', type=int,
+                        default=40, help='number of prompts to use')
+    parser.add_argument('--filter_by_median', type=int, default=10,
+                        help='If > 0, number of prompts to keep (closest to the median)')
     return parser
 
 
@@ -194,6 +144,11 @@ if __name__ == '__main__':
         exit(0)
     args.verbalizer = tprompt.prompts.get_verbalizer(args)
 
+    # newly added this for compatibility!
+    if not isinstance(args.verbalizer, dict):
+        args.verbalizer = {k: args.verbalizer.verbalizer[args.verbalizer.id2label[k]]
+                           for k in args.verbalizer.id2label.keys()}
+
     # set up logging
     logger = logging.getLogger()
     logging.basicConfig(level=logging.INFO)
@@ -225,45 +180,59 @@ if __name__ == '__main__':
     prompts = tprompt.prompts.get_prompts(
         args, X_train_text, y_train, args.verbalizer, seed=1  # note, not passing seed here!
     )[:args.num_prompts]
+    tok = AutoTokenizer.from_pretrained(args.checkpoint)
+    lengths_in_tokens = [len(tok.encode(x)) for x in prompts]
+
+    # filter by median
+    if args.filter_by_median > 0:
+        median = np.median(lengths_in_tokens)
+        idx = np.argsort(np.abs(np.array(lengths_in_tokens) - median))
+        prompts = [prompts[i] for i in idx[:args.filter_by_median]]
+        lengths_in_tokens = [lengths_in_tokens[i]
+                             for i in idx[:args.filter_by_median]]
+    print('lengths_in_tokens', lengths_in_tokens)
+
+    # compile prompts
+    # print('prompts', len(prompts), lens)
     avg_soft_prompt = compiling.get_avg_soft_prompt(args.checkpoint, prompts)
+    # print('avg_soft_prompt', avg_soft_prompt.shape)
 
     # score avg model
-    tok = AutoTokenizer.from_pretrained(args.checkpoint)
-    lens = [len(tok.encode(x)) for x in prompts]
-    longest_prompt_idx = np.argmax(lens)
+    longest_prompt_idx = np.argmax(lengths_in_tokens)
+    kwargs = {
+        'checkpoint': args.checkpoint,
+        'verbalizer': args.verbalizer,
+        'random_state': args.seed,
+        'prompt_at_start_or_end': args.prompt_at_start_or_end,
+        'prompt_template': "{example}{prompt}",
+    }
     m = PromptHooker(
-        checkpoint=args.checkpoint,
-        # this should probably be the prompt with the max num tokens?
         prompts=[prompts[longest_prompt_idx]],
-        verbalizer=args.verbalizer,
-        cache_prompt_features_dir=None,
-        random_state=args.seed,
         hook_weights=avg_soft_prompt,
-        prompt_at_start_or_end=args.prompt_at_start_or_end,
-        prompt_template="{example}{prompt}",
+        verbose=False,
+        cache_prompt_features_dir=join(args.cache_prompt_features_dir, 'avg'),
+        **kwargs,
     )
     m.fit(X_train_text, y_train)
-    r['accs_avg'] = m.prompt_accs_[0]
+    r['acc_compiled'] = m.prompt_accs_[0]
 
     # score individual models
     m = PromptHooker(
-        checkpoint=args.checkpoint,
-        # this should probably be the prompt with the max num tokens?
         prompts=prompts,
-        verbalizer=args.verbalizer,
+        hook_weights=None,
+        verbose=False,
         cache_prompt_features_dir=args.cache_prompt_features_dir,
-        random_state=args.seed,
-        hook_weights=avg_soft_prompt,
-        prompt_at_start_or_end=args.prompt_at_start_or_end,
-        prompt_template="{example}{prompt}",
+        **kwargs,
     )
     m.fit(X_train_text, y_train)
-    accs0 = deepcopy(m.prompt_accs_)
+    accs_single = deepcopy(m.prompt_accs_)
 
     # set up saving dictionary + save params file
     r.update(vars(args))
-    r['accs_single'] = m.prompt_accs_
-    print('Avg', r['accs_avg'], 'Sing', r['accs_single'])
+    r['accs_single'] = accs_single
+    r['acc_single_mean'] = np.mean(accs_single)
+    r['acc_single_max'] = np.max(accs_single)
+    # print('Avg', r['acc_compiled'], 'Sing', r['accs_single'])
 
     r['prompts'] = prompts
     r['save_dir_unique'] = save_dir_unique
