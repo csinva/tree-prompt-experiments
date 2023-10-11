@@ -33,7 +33,11 @@ from transformers import AutoTokenizer, AutoModelForCausalLM
 from sklearn.base import BaseEstimator, ClassifierMixin
 from transformers import AutoModelForCausalLM, AutoTokenizer, AutoModel
 import torch
-sys.path.append('../experiments/')
+import torch
+import math
+import vec2text
+import openai
+openai.api_key = open(os.path.expanduser('~/.openai_api_key')).read().strip()
 
 OUTPUTS_ALL = {}
 PROMPT_NUM_GLOBAL = 0
@@ -75,3 +79,41 @@ def get_avg_soft_prompt(checkpoint, prompts):
     # average
     avg = torch.concat(tuple(padded)).mean(axis=0).unsqueeze(0)
     return avg
+
+
+def get_avg_inverted_text_prompt(prompts: List[str]) -> str:
+    def _get_embeddings_openai(text_list, model="text-embedding-ada-002", cache_dir=os.path.expanduser('~/.openai_emb_cache')) -> torch.Tensor:
+        batches = math.ceil(len(text_list) / 128)
+        outputs = []
+        for batch in range(batches):
+            text_list_batch = text_list[batch * 128: (batch + 1) * 128]
+
+            # check for cache
+            cache_path = join(cache_dir, sha256({'embs': text_list_batch}))
+            if os.path.exists(cache_path):
+                outputs.extend(joblib.load(cache_path))
+            else:
+                response = openai.Embedding.create(
+                    input=text_list_batch,
+                    model=model,
+                    # override default base64 encoding...
+                    encoding_format="float",
+                )
+                embs = [e["embedding"] for e in response["data"]]
+                outputs.extend(embs)
+
+                # save to cache
+                if cache_dir is not None:
+                    if not os.path.exists(cache_dir):
+                        os.makedirs(cache_dir)
+                    joblib.dump(embs, cache_path)
+        return torch.tensor(outputs)
+
+    embeddings = _get_embeddings_openai(prompts)
+    avg_embedding = embeddings.mean(dim=0, keepdim=True).cuda()
+    corrector = vec2text.load_corrector("text-embedding-ada-002")
+    avg_text = vec2text.invert_embeddings(
+        embeddings=avg_embedding,
+        corrector=corrector
+    )
+    return avg_text
