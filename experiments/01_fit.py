@@ -107,8 +107,11 @@ def evaluate_model(model, X_train, X_cv, X_test,
                 if not multiclass:
                     y_pred_proba_ = y_pred_proba_[:, 1]
                     for metric_name, metric_fn in metrics_proba.items():
-                        r[f'{metric_name}_{split_name}'] = metric_fn(
-                            y_, y_pred_proba_)
+                        try:
+                             r[f'{metric_name}_{split_name}'] = metric_fn(
+                                    y_, y_pred_proba_)
+                        except:
+                             pass
                 elif multiclass:
                     for metric_name, metric_fn in metrics_proba_multiclass.items():
                         try:
@@ -273,7 +276,7 @@ if __name__ == '__main__':
 
         # apply onehot encoding to prompt features if more than 3 classes
         # (FPB 3 classes are in order so let them be unless we need them to be binary (args.save_results is True))
-        if ('tree' in args.model_name.lower()) or ('ensemble' in args.model_name.lower()):
+        if ('tree' in args.model_name.lower()) or ('ensemble' in args.model_name.lower()) or ('boost' in args.model_name.lower()):
             num_unique_outputs = len(np.unique(y_train))
             if num_unique_outputs > 2:
                 print("Converting to one-hot")
