@@ -1,8 +1,8 @@
 <h1 align="center"> Tree Prompting Experiments </h1>
-<p align="center"> Tree Prompting: Efficient Task Adaptation without Fine-Tuning, code for the <a href="">Tree-prompt paper</a>. 
+<p align="center"> Tree Prompting: Efficient Task Adaptation without Fine-Tuning, code for the <a href="https://arxiv.org/abs/2310.14034">Tree-prompt paper</a>. 
 </p>
 
-This repo contains code for reproducing experiments in the <a href="">Tree-prompt paper</a>. For a simple, easy-to-use interface, see https://github.com/csinva/tree-prompt.
+This repo contains code for reproducing experiments in the <a href="https://arxiv.org/abs/2310.14034">Tree-prompt paper</a>. For a simple, easy-to-use interface, see https://github.com/csinva/tree-prompt.
 
 # Reproducing experiments
 
